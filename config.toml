@@ -1,0 +1,6 @@
+
+appid = "your appid"
+key = "your key"
+source_lang = "auto"
+target_lang = "zh"
+enable_logging = false
