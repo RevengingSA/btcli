@@ -2,7 +2,7 @@ use std::env;
 use std::process::Command;
 
 fn main() {
-    println!("cargo: rerun-if-changed=icon.ico");
+    println!("cargo: rerun-if-changed=res\\favicon.ico");
     #[cfg(windows)]
     {
         let mut res = winres::WindowsResource::new();
