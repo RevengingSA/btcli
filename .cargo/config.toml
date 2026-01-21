@@ -1,0 +1,3 @@
+[target.'cfg(target_os = "windows")']
+# 可选的编译优化标志
+rustflags = ["-C", "target-cpu=native"]
