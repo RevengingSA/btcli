@@ -155,11 +155,6 @@ src/
     ├── lovely_items.rs # UI组件
     └── settings.rs  # 设置界面
 ```
-
-## 特殊功能 (¬‿¬)
-
-输入 "QAS" 作为待翻译文本时，会触发内置的彩蛋功能，显示一段特殊信息。
-
 ## 许可证 (•̀ᴗ•́)و
 
 本项目采用 Mozilla Public License Version 2.0 (MPL-2.0) 许可证。
