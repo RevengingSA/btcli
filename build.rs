@@ -30,6 +30,7 @@ fn main() {
                 println!("⚠️  UPX 未安装或压缩失败。请安装 UPX 以获得更小的二进制文件。");
                 println!("💡 安装命令 (macOS): brew install upx");
                 println!("💡 安装命令 (Ubuntu): sudo apt-get install upx");
+                println!("💡 安装命令 (Msys2): pacman install upx");
             }
         }
     }
