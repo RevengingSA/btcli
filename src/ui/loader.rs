@@ -26,8 +26,14 @@ pub fn ui_main() {
     siv.set_global_callback('c', |s| {
         crate::ui::index::clear_texts(s);
     });
-    siv.set_global_callback('s', |s| {
-        s.add_layer(crate::ui::settings::build_settings_view());
+    siv.set_global_callback('v', |s| {
+        s.add_layer(crate::ui::settings::build_view_only_settings_view());
+        // 延迟填充设置，确保UI控件已完全加载
+        s.cb_sink()
+            .send(std::boxed::Box::new(|s| {
+                crate::ui::settings::populate_view_only_settings_view(s);
+            }))
+            .unwrap_or(());
     });
     siv.set_global_callback('h', |s| {
         s.add_layer(crate::ui::help::build_help_view());
@@ -35,8 +41,10 @@ pub fn ui_main() {
     siv.set_global_callback('a', |s| {
         s.add_layer(crate::ui::about::build_about_view());
     });
+
+    // 按Q键退出
     siv.set_global_callback('q', |s| {
-        s.quit();
+        s.quit(); // 退出程序
     });
 
     siv.run();

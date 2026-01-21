@@ -12,7 +12,7 @@ pub struct AppConfig {
     pub key: String,
     pub source_lang: String,
     pub target_lang: String,
-    pub secret_key: String,
+    pub enable_logging: bool,
 }
 
 const EXAMPLE_CONF: &str = r#"
@@ -20,10 +20,10 @@ appid = "your appid"
 key = "your key"
 source_lang = "auto"
 target_lang = "zh"
-secret_key = "your secret key""#;
+enable_logging = false
+"#;
 
 use std::fs::write;
-use std::process::exit;
 
 fn create_conf() -> Result<(), std::io::Error> {
     write("config.toml", EXAMPLE_CONF)
@@ -31,17 +31,19 @@ fn create_conf() -> Result<(), std::io::Error> {
 
 use toml;
 
-pub fn save_conf(
+pub fn save_conf_with_debug(
     appid: &str,
     key: &str,
     source_lang: &str,
+    target_lang: &str,
+    enable_logging: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let conf = AppConfig {
         appid: appid.to_string(),
         key: key.to_string(),
         source_lang: source_lang.to_string(),
-        target_lang: "zh".to_string(),
-        secret_key: key.to_string(),
+        target_lang: target_lang.to_string(),
+        enable_logging,
     };
     let conf_str = toml::to_string(&conf)?;
     write("config.toml", conf_str)?;
@@ -74,33 +76,30 @@ fn load_file() -> ConfigResult {
     }
 }
 
-pub fn init_conf() -> AppConfig {
-    match load_file() {
-        ConfigResult::Ok(config) => config,
-        ConfigResult::Err(e) => match e.as_str() {
-            "config.toml not found, generating..." => match create_conf() {
-                Ok(_) => {
-                    println!(
-                        "Generated example config.toml, please edit it with your credentials."
-                    );
-                    exit(1);
-                }
-                Err(_) => {
-                    println!(":( Unable to create config.toml");
-                    exit(1);
-                }
-            },
-            _ => {
-                println!("{}", e);
-                exit(1);
-            }
-        },
-    }
-}
-
 pub fn try_init_conf() -> Result<AppConfig, String> {
     match load_file() {
         ConfigResult::Ok(config) => Ok(config),
-        ConfigResult::Err(e) => Err(e),
+        ConfigResult::Err(e) => {
+            // 如果配置文件不存在，尝试创建示例配置文件
+            if e.contains("not found") {
+                match create_conf() {
+                    Ok(_) => {
+                        // 创建成功后，解析示例配置并返回
+                        match toml::from_str::<AppConfig>(EXAMPLE_CONF) {
+                            Ok(default_config) => Ok(default_config),
+                            Err(parse_err) => {
+                                Err(format!(":( Unable to parse example config: {}", parse_err))
+                            }
+                        }
+                    }
+                    Err(create_err) => {
+                        Err(format!(":( Unable to create config.toml: {}", create_err))
+                    }
+                }
+            } else {
+                // 其他错误情况，直接返回错误
+                Err(e)
+            }
+        }
     }
 }

@@ -4,9 +4,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-pub(crate) mod about;
-pub(crate) mod help;
-pub(crate) mod index;
-pub(crate) mod loader;
-pub(crate) mod messagebox;
-pub(crate) mod settings;
+pub mod about;
+pub mod help;
+pub mod index;
+pub mod loader;
+pub mod lovely_items;
+pub mod settings;

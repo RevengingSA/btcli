@@ -7,20 +7,22 @@
 //! Help information module for btcli
 //! Contains language lists, error codes and special messages
 
+use crate::fancy_egg::get_random_blessing;
+
 const HELP_INFO: &str = r#"=== btcli - 百度翻译命令行工具帮助信息 ===
 
 【常见语种列表】
 名称        代码    名称        代码    名称        代码
-自动检测      auto   中文        zh      英语        en
-粤语        yue    文言文       wyw     日语        jp
-韩语        kor    法语        fra     西班牙语      spa
-泰语        th     阿拉伯语      ara     俄语        ru
-葡萄牙语      pt     德语        de      意大利语      it
-希腊语       el     荷兰语       nl      波兰语       pl
-保加利亚语     bul    爱沙尼亚语     est     丹麦语       dan
-芬兰语       fin    捷克语       cs      罗马尼亚语     rom
-斯洛文尼亚语    slo    瑞典语       swe     匈牙利语      hu
-繁体中文      cht    越南语       vie     
+自动检测    auto   中文        zh      英语         en
+粤语        yue    文言文      wyw     日语         jp
+韩语        kor    法语        fra     西班牙语     spa
+泰语        th     阿拉伯语     ara     俄语        ru
+葡萄牙语     pt     德语        de      意大利语     it
+希腊语      el     荷兰语       nl      波兰语       pl
+保加利亚语   bul    爱沙尼亚语    est     丹麦语      dan
+芬兰语      fin    捷克语       cs      罁马尼亚语    rom
+斯洛文尼亚语 slo    瑞典语       swe     匈牙利语      hu
+繁体中文    cht    越南语       vie
 
 【错误码列表】
 错误码    含义              解决方案
@@ -47,24 +49,10 @@ const HELP_INFO: &str = r#"=== btcli - 百度翻译命令行工具帮助信息 =
 - S.A. 2026-1-20 与你同往
 "#;
 
-static ENCRYPTED_MESSAGE: &[u8] = &[
-    0xBC, 0xD2, 0xCB, 0xBF, 0xCC, 0xC6, 0xBC, 0xF6, 0xF8, 0xB3, 0xFB, 0xE4, 0xBF, 0xD7, 0xD9, 0xBF,
-    0xF5, 0xE1,
-];
-
-fn decrypt_message(encrypted: &[u8]) -> String {
-    let decrypted_bytes: Vec<u8> = encrypted.iter().map(|&b| b ^ 0x5A).collect();
-    String::from_utf8_lossy(&decrypted_bytes).to_string()
-}
-
 /// 获取帮助信息
-pub fn get_help_info() -> &'static str {
-    HELP_INFO
-}
-
-/// 获取解密后的特殊消息
-pub fn get_secret_message() -> String {
-    decrypt_message(ENCRYPTED_MESSAGE)
+pub fn get_help_info() -> String {
+    let blessing = get_random_blessing();
+    format!("{}\n{}", HELP_INFO, &blessing)
 }
 
 #[cfg(test)]
@@ -72,16 +60,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_decrypt_message() {
-        let decrypted = get_secret_message();
-        assert!(!decrypted.is_empty());
+    fn test_get_help_info() {
+        let help = get_help_info();
+        assert!(help.contains("百度翻译命令行工具"));
     }
 
     #[test]
-    fn test_encrypt_decrypt_roundtrip() {
-        let original = "我喜欢顾千寻";
-        let encrypted = original.bytes().map(|b| b ^ 0x5A).collect::<Vec<u8>>();
-        let decrypted = decrypt_message(&encrypted);
-        assert_eq!(original, decrypted);
+    fn test_get_randomized_help_info() {
+        let help = get_help_info();
+        assert!(help.contains("随机数字: "));
     }
 }

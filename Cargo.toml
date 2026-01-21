@@ -1,9 +1,17 @@
 [package]
 name = "btcli"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2024"
 license = "MPL-2.0"
 authors = ["S.A. (@snoware) <2026>"]
+
+[[bin]]
+name = "btcli"
+path = "src/main.rs"
+
+[lib]
+name = "btcli_lib"
+path = "src/lib.rs"
 
 [dependencies]
 serde = { version = "1.0.228", features = ["derive"] }
@@ -13,22 +21,27 @@ serde_json = "1.0.149"
 cursive = "0.21.1"
 md5 = "0.8.0"
 rand = "0.9.2"
+log = "0.4"
+env_logger = "0.10"
+chrono = "0.4"
+lazy_static = "1.5"
+base64 = "0.22.1"
 
 [profile.release]
 # 优化级别：3(性能优先)、"z"(体积优先)、"s"(平衡)
 opt-level = 3
 
 # 链接时优化：false(关闭)、"thin"(推荐)、true(全量)
-lto = "thin"
+lto = true
 
 # 代码生成单元：1(单单元)、16(默认)
-codegen-units = 16
+codegen-units = 1
 
 # Panic处理策略："unwind"(默认)、"abort"(性能优化)
-panic = "unwind"
+panic = "abort"
 
 # 符号信息剥离：true(移除调试符号)
 strip = true
 
-# CPU特定优化：针对构建机器的CPU特性
-target-cpu = "native"
+[build-dependencies]
+winres = "0.1.12"

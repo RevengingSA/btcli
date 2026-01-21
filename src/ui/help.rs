@@ -9,7 +9,7 @@ use cursive::traits::{Resizable, Scrollable};
 use cursive::views::{Dialog, ScrollView, TextView};
 
 pub fn build_help_view() -> Dialog {
-    let help_text = extract_help::get_help_info().to_string();
+    let help_text = extract_help::get_help_info();
 
     let scrollable_text = ScrollView::new(TextView::new(help_text))
         .scrollable()

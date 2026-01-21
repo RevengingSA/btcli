@@ -5,6 +5,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 use crate::conf::AppConfig;
+use crate::fancy_egg::{EGG_CODE, decrypt};
 use crate::fyerrcodes::query_msg;
 use md5;
 use rand;
@@ -20,6 +21,7 @@ const HOST: &str = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 /// 定义响应体数据结构
 // 成功
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct TranslationResponse {
     from: String,
     to: String,
@@ -27,6 +29,7 @@ struct TranslationResponse {
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct TranslationItem {
     src: String,
     dst: String,
@@ -34,13 +37,14 @@ struct TranslationItem {
 
 //失败
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct ErrorResponse {
     error_code: serde_json::Value,
     error_msg: String,
 }
 
-fn calculate_sign(appid: &str, q: &str, salt: &str, secret_key: &str) -> String {
-    let sign_str = format!("{}{}{}{}", appid, q, salt, secret_key);
+fn calculate_sign(appid: &str, q: &str, salt: &str, key: &str) -> String {
+    let sign_str = format!("{}{}{}{}", appid, q, salt, key);
     format!("{:x}", md5::compute(sign_str.as_bytes()))
 }
 
@@ -52,7 +56,7 @@ fn send_response(
     app_config: &AppConfig,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let salt = rand::random::<u32>().to_string();
-    let sign = calculate_sign(appid, q, &salt, &app_config.secret_key);
+    let sign = calculate_sign(appid, q, &salt, &app_config.key);
 
     let mut params = HashMap::new();
     params.insert("appid", appid);
@@ -96,6 +100,12 @@ pub fn translate(
     q: &str,
     app_config: AppConfig,
 ) -> Result<String, String> {
+    // 特殊功能：如果翻译内容为 QAS，则直接返回彩蛋
+    if q.trim().eq_ignore_ascii_case("QAS") {
+        let egg: String = decrypt(EGG_CODE);
+        return Ok(egg);
+    }
+
     // 控制请求频率
     std::thread::sleep(std::time::Duration::from_millis(100));
 
