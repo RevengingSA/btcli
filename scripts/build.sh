@@ -207,19 +207,115 @@ build_project() {
 package_project() {
     print_info "Packaging project version $PROJECT_VERSION for distribution... (¬‿¬)"
     
+    # Determine current platform
+    local os_arch_part=""
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+            os_arch_part="windows-x86_64"
+        elif [[ "$(uname -m)" == "aarch64" ]]; then
+            os_arch_part="windows-aarch64"
+        else
+            os_arch_part="windows-$(uname -m)"
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+            os_arch_part="macos-x86_64"
+        elif [[ "$(uname -m)" == "arm64" ]]; then
+            os_arch_part="macos-arm64"
+        else
+            os_arch_part="macos-$(uname -m)"
+        fi
+    else
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+            os_arch_part="linux-x86_64"
+        elif [[ "$(uname -m)" == "aarch64" ]]; then
+            os_arch_part="linux-aarch64"
+        elif [[ "$(uname -m)" == "armv7l" ]]; then
+            os_arch_part="linux-armv7"
+        elif [[ "$(uname -m)" == "riscv64" ]]; then
+            os_arch_part="linux-riscv64"
+        else
+            os_arch_part="linux-$(uname -m)"
+        fi
+    fi
+    
+    # First, build the release binary
+    cargo build --release
+    
     # Create package using cargo package
     # Use --allow-dirty to allow packaging with uncommitted changes
     cargo package --allow-dirty
     
     if [[ $? -eq 0 ]]; then
         print_success "Package created successfully!"
-        print_info "Check target/package/ directory for .crate file"
         
-        # Show information about the created package
-        if [[ -d "target/package" ]]; then
-            print_info "Package contents:"
-            ls -la target/package/
+        # Create a unified output directory
+        local output_dir="btcli-$PROJECT_VERSION-$os_arch_part-package"
+        mkdir -p "$output_dir"
+        
+        # Copy the .crate file and rename it to have source suffix
+        cp "target/package/btcli-$PROJECT_VERSION.crate" "$output_dir/btcli-$PROJECT_VERSION-$os_arch_part-source.crate"
+        
+        # Copy the release executable to the output directory
+        local release_executable=""
+        local release_executable_name=""
+        if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+            release_executable="target/release/btcli.exe"
+            release_executable_name="btcli-$PROJECT_VERSION-$os_arch_part-release.exe"
+        else
+            release_executable="target/release/btcli"
+            release_executable_name="btcli-$PROJECT_VERSION-$os_arch_part-release"
         fi
+        
+        if [[ -f "$release_executable" ]]; then
+            # Copy original release executable
+            cp "$release_executable" "$output_dir/$release_executable_name"
+            
+            # If it's Windows and UPX is available, create UPX compressed version
+            if [[ "$os_arch_part" =~ .*windows.* ]]; then
+                if command_exists upx; then
+                    print_info "Compressing executable with UPX..."
+                    upx -9 "$output_dir/$release_executable_name" 2>/dev/null || print_warning "UPX compression may have failed, continuing anyway"
+                    # Rename the UPX compressed file
+                    mv "$output_dir/$release_executable_name" "$output_dir/btcli-$PROJECT_VERSION-$os_arch_part-release_upx.exe"
+                    print_success "Created UPX compressed executable: btcli-$PROJECT_VERSION-$os_arch_part-release_upx.exe"
+                else
+                    print_warning "UPX not found, skipping executable compression"
+                    # Just rename the original release executable to match the desired naming
+                    mv "$output_dir/$release_executable_name" "$output_dir/btcli-$PROJECT_VERSION-$os_arch_part-release.exe"
+                fi
+            fi
+        else
+            print_warning "Release executable not found at $release_executable"
+        fi
+        
+        # Create debug package with all debug artifacts
+        local debug_zip_name="btcli-$PROJECT_VERSION-$os_arch_part-debug.zip"
+        cd target/debug
+        if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+            zip -9 -r "../package/$debug_zip_name" btcli.exe btcli.d libbtcli_lib.d libbtcli_lib.rlib *.pdb 2>/dev/null || print_warning "Some debug files may be missing"
+        else
+            zip -9 -r "../package/$debug_zip_name" btcli btcli.d libbtcli_lib.d libbtcli_lib.rlib 2>/dev/null || print_warning "Some debug files may be missing"
+        fi
+        cd ../..
+        
+        # Move the debug zip to our output directory
+        if [[ -f "target/package/$debug_zip_name" ]]; then
+            mv "target/package/$debug_zip_name" "$output_dir/"
+        fi
+        
+        # Copy LICENSE file to output directory
+        if [[ -f "LICENSE" ]]; then
+            cp "LICENSE" "$output_dir/"
+        else
+            print_warning "LICENSE file not found in project root"
+        fi
+        
+        print_info "All packages are in $output_dir/"
+        print_info "Package contents:"
+        ls -la "$output_dir/"
+        
+        print_success "Packaging completed successfully!"
     else
         print_error "Package creation failed!"
         exit 1
@@ -403,6 +499,7 @@ USAGE:
 
 COMMANDS:
     build       Build the project (default)
+    package     Package the project for distribution
     clean       Clean build artifacts
     check       Check dependencies
     help        Show this help message
@@ -415,6 +512,7 @@ EXAMPLES:
     ./build.sh                                  # Build for current platform with default zip format
     ./build.sh clean                           # Clean build artifacts
     ./build.sh build --format zip              # Build with zip format
+    ./build.sh package                         # Package project for distribution
 EOF
 }
 

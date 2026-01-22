@@ -40,14 +40,45 @@ First, configure your Baidu Translate API credentials:
 ./btcli
 ```
 
-Then you can use the TUI interface or command line:
+The application supports both TUI (Text User Interface) mode and pure command-line mode:
 
 ```bash
 # Interactive TUI mode
 ./btcli
 
-# Command line mode
+# Command line mode - basic translation
 ./btcli "text to translate"
+
+# Command line mode - with options
+./btcli -t zh "Hello world"              # Translate to Chinese
+./btcli -s en -t zh "Hello world"      # Specify source and target languages
+./btcli --help                         # Show help information
+./btcli --version                      # Show version information
+```
+
+### Command Line Options
+
+The command-line interface supports the following options:
+
+- `-s, --source LANG`: Specify the source language (e.g., en, zh)
+- `-t, --target LANG`: Specify the target language (e.g., en, zh)
+- `-h, --help`: Display help information
+- `-v, --version`: Display version information
+
+Examples:
+
+```bash
+# Basic translation (uses configured default languages)
+btcli "Hello world"
+
+# Translate to specific language
+btcli -t zh "Hello world"
+
+# Specify both source and target languages
+btcli -s en -t fr "Hello world"
+
+# Get help
+btcli --help
 ```
 
 ## Dependencies

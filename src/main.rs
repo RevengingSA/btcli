@@ -8,6 +8,7 @@ use std::env;
 
 // 引入lib.rs中的模块和宏
 use btcli_lib::*;
+mod cli;
 
 fn main() {
     // 初始化日志系统 - 根据配置决定是否记录日志
@@ -33,9 +34,26 @@ fn main() {
 }
 
 fn run_cli_mode(args: &[String]) {
-    log_to_file!("启动CLI模式，参数: {:?}", args);
-    let text_to_translate = args.join(" ");
-
+    let cli_args = cli::parse_args(args);
+    
+    if cli_args.help {
+        cli::show_help();
+        return;
+    }
+    
+    if cli_args.version {
+        cli::show_version();
+        return;
+    }
+    
+    if cli_args.text.is_empty() {
+        eprintln!("错误: 请提供要翻译的文本");
+        cli::show_help();
+        return;
+    }
+    
+    log_to_file!("启动CLI模式，参数: {:?}", cli_args);
+    
     // 尝试加载配置
     let config = match crate::conf::try_init_conf() {
         Ok(config) => {
@@ -52,13 +70,17 @@ fn run_cli_mode(args: &[String]) {
             return;
         }
     };
+    
+    // 使用命令行参数覆盖配置中的语言设置
+    let source_lang = cli_args.source_lang.unwrap_or(config.source_lang.clone());
+    let target_lang = cli_args.target_lang.unwrap_or(config.target_lang.clone());
 
     // 执行翻译
     match crate::fycore::translate(
         &config.appid,
-        &config.source_lang,
-        &config.target_lang,
-        &text_to_translate,
+        &source_lang,
+        &target_lang,
+        &cli_args.text,
         config.clone(),
     ) {
         Ok(result) => {

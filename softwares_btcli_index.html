@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -333,6 +334,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- 可拖动的带颜文字小球 -->
     <div class="draggable-ball">
@@ -343,7 +345,7 @@
         <nav>
             <div class="logo">btcli</div>
             <ul class="nav-links">
-                <li><a href="../..">首页</a></li>
+                <li><a href="#home">首页</a></li>
                 <li><a href="#features">特性</a></li>
                 <li><a href="#installation">安装</a></li>
                 <li><a href="#usage">使用</a></li>
@@ -377,21 +379,65 @@
                 <h2>功能特性</h2>
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <h3>命令行界面</h3>
-                        <p>直接在终端中使用，无需打开浏览器，高效便捷</p>
+                        <h3>命令行界面 (CLI)</h3>
+                        <p>支持丰富的命令行参数，可直接在终端中快速翻译，无需打开图形界面，提高工作效率</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>支持 -s/--source 指定源语言</li>
+                            <li>支持 -t/--target 指定目标语言</li>
+                            <li>支持 -h/--help 查看帮助信息</li>
+                            <li>支持 -v/--version 查看版本信息</li>
+                        </ul>
                     </div>
                     <div class="feature-card">
-                        <h3>TUI界面</h3>
-                        <p>直观的文本用户界面，操作简单易用</p>
+                        <h3>文本用户界面 (TUI)</h3>
+                        <p>直观的文本用户界面，提供友好的交互体验，支持多窗口操作和实时翻译</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>支持多语言配置</li>
+                            <li>支持设置页面</li>
+                            <li>支持快捷键操作</li>
+                            <li>支持剪贴板功能</li>
+                        </ul>
                     </div>
                     <div class="feature-card">
                         <h3>多语言支持</h3>
-                        <p>支持中文与其他多种语言的互译</p>
+                        <p>支持中文、英文及多种国际语言之间的互译，覆盖全球主要语系</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>自动检测源语言</li>
+                            <li>支持主流语种翻译</li>
+                            <li>持续添加新语言</li>
+                            <li>高质量翻译引擎</li>
+                        </ul>
                     </div>
-                    <!--<div class="feature-card">
-                        <h3>离线使用</h3>
-                        <p>部分功能支持离线使用，保护隐私</p>
-                    </div>-->
+                    <div class="feature-card">
+                        <h3>纯CLI模式</h3>
+                        <p>支持纯命令行操作，适合脚本集成和自动化任务，可无缝集成到各类工作流中</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>无头模式运行</li>
+                            <li>支持管道输入</li>
+                            <li>支持批处理操作</li>
+                            <li>适合CI/CD集成</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h3>安全可靠</h3>
+                        <p>采用百度翻译API，保障翻译质量和数据安全，本地配置文件加密存储</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>API密钥本地存储</li>
+                            <li>HTTPS加密传输</li>
+                            <li>无数据记录</li>
+                            <li>开源可验证</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h3>跨平台支持</h3>
+                        <p>基于Rust开发，支持Windows、macOS、Linux等多种操作系统</p>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            <li>Windows x86_64</li>
+                            <li>Linux x86_64</li>
+                            <li>macOS Intel/Apple Silicon</li>
+                            <li>ARM架构支持</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>
@@ -430,6 +476,10 @@ cargo build --release</code></pre>
                     <div class="example">
                         <h3>启动TUI界面</h3>
                         <pre><code>btcli</code></pre>
+                    </div>
+                    <div class="example">
+                        <h3>显示帮助</h3>
+                        <pre><code>btcli --help</code></pre>
                     </div>
                 </div>
             </div>
@@ -630,4 +680,5 @@ cargo build --release</code></pre>
         });
     </script>
 </body>
+
 </html>

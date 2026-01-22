@@ -93,6 +93,7 @@ impl FileLogger {
 }
 
 // 导出必要的模块
+pub mod cli;
 pub mod conf;
 pub mod expect_react;
 pub mod extract_help;
