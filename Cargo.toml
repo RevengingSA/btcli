@@ -13,7 +13,7 @@ documentation = "https://docs.rs/btcli"
 readme = "README.md"
 repository = "https://gitee.com/ironbayberry/btcli"
 homepage = "https://swe-iss.rth1.xyz/softwares/btcli"
-keywords = ["translate", "Chinese", "TUI", "human_AI_Cooperation", "open-source"]
+keywords = ["translate", "Chinese", "TUI", "SASWE", "open-source"]
 categories = ["command-line-utilities"]
 
 [lints.rust]
