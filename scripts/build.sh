@@ -203,6 +203,29 @@ build_project() {
     print_success "Build and packaging completed successfully! ~(^-^)~"
 }
 
+# Package the project for distribution
+package_project() {
+    print_info "Packaging project version $PROJECT_VERSION for distribution... (¬‿¬)"
+    
+    # Create package using cargo package
+    # Use --allow-dirty to allow packaging with uncommitted changes
+    cargo package --allow-dirty
+    
+    if [[ $? -eq 0 ]]; then
+        print_success "Package created successfully!"
+        print_info "Check target/package/ directory for .crate file"
+        
+        # Show information about the created package
+        if [[ -d "target/package" ]]; then
+            print_info "Package contents:"
+            ls -la target/package/
+        fi
+    else
+        print_error "Package creation failed!"
+        exit 1
+    fi
+}
+
 # Process built files for current platform
 process_built_files() {
     local compression_enabled=${1:-false}
@@ -412,6 +435,11 @@ main() {
             # Extract remaining arguments after the command
             shift  # Remove the command argument
             build_project "$@"
+            ;;
+        package)
+            detect_package_manager
+            install_dependencies
+            package_project
             ;;
         clean)
             detect_package_manager

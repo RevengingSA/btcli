@@ -1,3 +1,7 @@
+# Enable unstable features
+# NOTE: Commented out because profile-rustflags requires nightly
+# cargo-features = ["profile-rustflags"]
+
 [package]
 name = "btcli"
 version = "0.5.3"
@@ -56,5 +60,5 @@ panic = "abort"
 # 符号信息剥离：true(移除调试符号)
 strip = true
 
-# 目标CPU优化
-#rustflags = ["-C", "target-cpu=native"]
+# 目标CPU优化 - 注释掉需要不稳定功能的配置
+# rustflags = ["-C", "target-cpu=native"]
