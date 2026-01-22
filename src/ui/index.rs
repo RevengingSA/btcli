@@ -11,6 +11,9 @@ use cursive::{
     views::{Button, Dialog, LinearLayout, TextArea, TextView},
 };
 
+// 导入剪贴板功能
+use clipboard::{ClipboardContext, ClipboardProvider};
+
 use std::cell::Cell;
 
 // 使用 Cell 来安全地存储可变状态
@@ -51,6 +54,7 @@ pub fn build_main_view() -> LinearLayout {
                 }))
                 .unwrap_or(());
         }))
+        .child(Button::new("[复制(R)]", |s| copy_translation_result(s)))
         .child(Button::new("[帮助(H)]", |s| {
             s.add_layer(help::build_help_view())
         }))
@@ -150,4 +154,44 @@ pub fn clear_texts(s: &mut Cursive) {
     s.call_on_name("output_textview", |view: &mut TextView| {
         view.set_content("");
     });
+}
+
+// 复制翻译结果到剪贴板
+pub fn copy_translation_result(s: &mut Cursive) {
+    // 获取当前输出视图的内容
+    let output_content_opt = s.call_on_name("output_textview", |view: &mut TextView| {
+        view.get_content().source().to_string() // 立即转换为String拥有所有权
+    });
+
+    match output_content_opt {
+        Some(content) => {
+            if content.trim().is_empty() {
+                lovely_items::show_error(s, "没有可复制的翻译结果");
+                return;
+            }
+
+            // 获取剪贴板实例并设置内容
+            let ctx: Result<ClipboardContext, _> = clipboard::ClipboardProvider::new();
+
+            match ctx {
+                Ok(mut clipboard_ctx) => {
+                    match clipboard_ctx.set_contents(content) {
+                        Ok(_) => {
+                            // 显示成功消息
+                            lovely_items::show_info(s, "翻译结果已复制到剪贴板！");
+                        }
+                        Err(_) => {
+                            lovely_items::show_error(s, "无法复制到剪贴板");
+                        }
+                    }
+                }
+                Err(_) => {
+                    lovely_items::show_error(s, "无法访问剪贴板");
+                }
+            }
+        }
+        None => {
+            lovely_items::show_error(s, "无法获取翻译结果");
+        }
+    }
 }

@@ -41,6 +41,9 @@ pub fn ui_main() {
     siv.set_global_callback('a', |s| {
         s.add_layer(crate::ui::about::build_about_view());
     });
+    siv.set_global_callback('r', |s| {
+        crate::ui::index::copy_translation_result(s);
+    });
 
     // 按Q键退出
     siv.set_global_callback('q', |s| {
