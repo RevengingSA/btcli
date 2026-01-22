@@ -1,4 +1,6 @@
 /target
+/pak
+#编译脚本生成物
 # 日志文件
 *.log
 btcli_app

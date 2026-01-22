@@ -23,10 +23,23 @@ target_lang = "zh"
 enable_logging = false
 "#;
 
-use std::fs::write;
+use std::fs::{create_dir_all, write};
+use std::path::PathBuf;
+
+// 获取配置文件路径
+fn get_config_path() -> PathBuf {
+    let mut path = std::env::current_exe()
+        .unwrap_or_else(|_| std::env::temp_dir().join("btcli"));
+    path.pop(); // 移除可执行文件名
+    path.push(".btcli");
+    create_dir_all(&path).ok(); // 创建 .btcli 目录（如果不存在）
+    path.push("config.toml");
+    path
+}
 
 fn create_conf() -> Result<(), std::io::Error> {
-    write("config.toml", EXAMPLE_CONF)
+    let config_path = get_config_path();
+    write(config_path, EXAMPLE_CONF)
 }
 
 use toml;
@@ -46,7 +59,8 @@ pub fn save_conf_with_debug(
         enable_logging,
     };
     let conf_str = toml::to_string(&conf)?;
-    write("config.toml", conf_str)?;
+    let config_path = get_config_path();
+    write(config_path, conf_str)?;
     Ok(())
 }
 
@@ -56,15 +70,16 @@ pub enum ConfigResult {
 }
 
 fn load_file() -> ConfigResult {
-    if !std::path::Path::new("config.toml").exists() {
+    let config_path = get_config_path();
+    if !config_path.exists() {
         return ConfigResult::Err("config.toml not found, generating...".to_string());
-    } else if std::path::Path::new("config.toml").is_dir() {
+    } else if config_path.is_dir() {
         return ConfigResult::Err(
             "config.toml is not a file, please delete it and try again.".to_string(),
         );
     }
 
-    let raw = std::fs::read_to_string("config.toml");
+    let raw = std::fs::read_to_string(config_path);
     let raw_c = match raw {
         Ok(raw) => raw,
         Err(e) => return ConfigResult::Err(format!(":( Unable to read config.toml: {}", e)),

@@ -1,174 +1,144 @@
-# btcli - 百度翻译命令行工具 (O^_^O)
+# btcli
 
-**btcli** 是一个基于百度翻译API的命令行翻译工具，支持图形用户界面和命令行两种操作模式。该工具提供快速、便捷的多语言翻译服务，同时具备完善的配置管理和日志记录功能。
+An online command-line translation tool for Chinese and other languages with TUI interface.
 
-## 项目地址 ( ^_^ )/
-项目托管在 Gitee 上：https://gitee.com/Ironbayberry/btcli
+~(^-^)~
 
-## 功能特性 (¬‿¬)
+## Description
 
-- ~🌐~ **多语言支持**：支持中文、英语、日语、韩语等多种主流语言互译
-- ~💻~ **双重模式**：支持命令行模式和图形用户界面模式
-- ~⚙️~ **灵活配置**：可自定义AppID、API密钥、源语言和目标语言
-- ~📝~ **日志记录**：可选的日志记录功能，便于问题追踪
-- ~🎨~ **美观界面**：基于cursive库的终端图形界面
-- ~🛡️~ **错误处理**：完善的错误处理和用户友好的错误提示
-- ~🎉~ **趣味彩蛋**：内置特殊功能彩蛋
-- ~📋~ **复制功能**：一键复制翻译结果到剪贴板
+btcli is a command-line translation tool that provides a TUI (Text User Interface) for easy access to Baidu Translate API. It supports multiple languages and provides a convenient way to translate text directly from the command line.
 
-## 安装要求 (•̀ᴗ•́)و
+## Features
 
-- Rust 1.80+ (基于2024 edition)
-- Cargo 包管理器
+- Command-line interface with TUI
+- Support for multiple languages
+- Configuration management
+- Error handling and logging
+- Cross-platform compatibility
 
-## 安装方法 (¬‿¬)
+## Installation
 
-### 方法一：从源码构建 (•̀ᴗ•́)و
+To build and install btcli, you'll need Rust and Cargo installed on your system.
+
+Clone the repository and build:
 
 ```bash
-# 克隆仓库
-git clone <repository-url>
+git clone https://github.com/RevengingSA/btcli.git
 cd btcli
-
-# 构建项目
 cargo build --release
-
-# 运行程序
-./target/release/btcli
 ```
 
-### 方法二：直接运行 (¬‿¬)
+The binary will be available in `target/release/btcli`.
+
+## Usage
+
+First, configure your Baidu Translate API credentials:
 
 ```bash
-# 直接运行（无需安装）
-cargo run
+# Edit config.toml with your API credentials
+# Or run the program once to generate an example config
+./btcli
 ```
 
-## 使用方法 (•̀ᴗ•́)و
-
-### 命令行模式 (¬‿¬)
-
-当提供命令行参数时，程序自动进入命令行模式：
+Then you can use the TUI interface or command line:
 
 ```bash
-# 基本翻译
-cargo run -- "Hello World"
+# Interactive TUI mode
+./btcli
 
-# 或者使用构建后的可执行文件
-./target/release/btcli "Hello World"
+# Command line mode
+./btcli "text to translate"
 ```
 
-### 图形界面模式 (•̀ᴗ•́)و
+## Dependencies
 
-当不提供任何参数时，程序自动进入图形界面模式：
+- Rust 1.70+
+- Cargo
+- UPX (optional, for binary compression)
+- tar (for packaging)
+- zip (for packaging)
+
+## Configuration File Location
+
+The configuration file is stored in `.btcli/config.toml` in the same directory as the executable.
+
+## Build Script Usage
+
+The unified build script supports various options:
 
 ```bash
-cargo run
-# 或
-./target/release/btcli
+# Build with default formats (zst,zip) for all common platforms
+./scripts/build.sh
+
+# Clean build artifacts
+./scripts/build.sh clean
+
+# Build with specific compression formats
+./scripts/build.sh build --format zst
+./scripts/build.sh build --format zip,gz
+
+# Check dependencies
+./scripts/build.sh check
+
+# Build for specific target platforms
+./scripts/build.sh --target x86_64-unknown-linux-gnu
+./scripts/build.sh --target x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu
+./scripts/build.sh --target x86_64-unknown-linux-gnu --format zst
+
+# Build with all files in a single directory (no debug/release separation)
+./scripts/build.sh --allin
 ```
 
-#### 界面快捷键 (•̀ᴗ•́)و
+## MSYS2 Environment Notes
 
-- `T` - 翻译文本 (｡◕‿◕｡)
-- `C` - 清空文本 (¬‿¬)
-- `V` - 查看设置 (•̀ᴗ•́)و
-- `R` - 复制翻译结果 (¬‿¬)
-- `H` - 帮助信息 (¬‿¬)
-- `A` - 关于 (•̀ᴗ•́)و
-- `Q` - 退出程序 (¬‿¬)
+When using the build script in MSYS2 environment:
 
-## 配置说明 (•̀ᴗ•́)و
+- The script detects MSYS2 automatically
+- Dependencies are checked but not automatically installed
+- Install missing packages manually using `pacman -S package-name`
+- Typical packages needed: `mingw-w64-x86_64-rust`, `mingw-w64-x86_64-upx`, `zip`, `tar`
 
-首次运行时，程序会自动生成 `config.toml` 配置文件：
+## Multi-Platform Support
 
-```toml
-appid = "your appid"
-key = "your key"
-source_lang = "auto"
-target_lang = "zh"
-enable_logging = false
-```
+The build script supports cross-compilation for multiple platforms:
 
-### 配置参数 (¬‿¬)
+- Linux x86_64: `x86_64-unknown-linux-gnu`
+- Linux ARM64: `aarch64-unknown-linux-gnu`
+- Linux RISC-V64: `riscv64gc-unknown-linux-gnu`
+- Windows ARM64: `aarch64-pc-windows-msvc`
+- Android ARM64: `aarch64-linux-android`
+- Android ARMv7: `armv7-linux-androideabi`
+- Android x86_64: `x86_64-linux-android`
+- Android x86: `i686-linux-android`
 
-- `appid`：百度翻译API的AppID
-- `key`：API密钥
-- `source_lang`：源语言（auto表示自动检测）
-- `target_lang`：目标语言
-- `enable_logging`：是否启用日志记录
+Install targets with: `rustup target add <target>`
 
-### 设置界面 (•̀ᴗ•́)و
+## Termux Support
 
-可以通过图形界面的"查看设置"功能修改配置，支持实时保存。
+The build script also works in Termux environment on Android:
 
-## 支持的语言 (¬‿¬)
+- The script automatically detects Termux environment
+- Install dependencies with: `pkg install rust cargo tar zip upx rustup zstd`
+- Cross-compile for various platforms as described above
+- By default builds for Android targets: `aarch64-linux-android`, `armv7-linux-androideabi`, `x86_64-linux-android`, `i686-linux-android`
 
-| 语言 | 代码 | 语言 | 代码 | 语言 | 代码 |
-|------|------|------|------|------|------|
-| 自动检测 | auto | 中文 | zh | 英语 | en |
-| 粤语 | yue | 文言文 | wyw | 日语 | jp |
-| 韩语 | kor | 法语 | fra | 西班牙语 | spa |
-| 泰语 | th | 阿拉伯语 | ara | 俄语 | ru |
-| 葡萄牙语 | pt | 德语 | de | 意大利语 | it |
+## Output Files
 
-## 错误码说明 (•̀ᴗ•́)و
+The build script generates files with the naming convention:
+`btcli-{version}-{os}-{arch}.(tar.zst|zip|tar.gz|tar.xz)`
 
-| 错误码 | 含义 | 解决方案 |
-|--------|------|----------|
-| 52000 | 成功 | - |
-| 52001 | 请求超时 | 检查文本和语言参数 |
-| 52002 | 系统错误 | 请重试 |
-| 52003 | 未授权用户 | 检查AppID是否正确 |
-| 54000 | 必填参数为空 | 检查参数是否完整 |
-| 54001 | 签名错误 | 检查签名生成方法 |
-| 54003 | 访问频率受限 | 降低调用频率 |
+Each archive contains:
+- debug/ directory with debug binaries and all debug artifacts (.d, .rlib, deps/) (normal mode)
+- release/ directory with release binaries and all release artifacts (normal mode)
+- Or all files in a single directory (when using --allin flag)
 
-## 技术栈 (¬‿¬)
+## License
 
-- **编程语言**：Rust 2024 Edition (•̀ᴗ•́)و
-- **网络请求**：ureq (¬‿¬)
-- **序列化**：serde + toml (•̀ᴗ•́)و
-- **加密算法**：md5 (¬‿¬)
-- **随机数**：rand (•̀ᴗ•́)و
-- **日志系统**：log + env_logger (¬‿¬)
-- **时间处理**：chrono (•̀ᴗ•́)و
-- **界面库**：cursive (¬‿¬)
-- **编码处理**：base64 (•̀ᴗ•́)و
-- **静态变量**：lazy_static (¬‿¬)
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. 
+If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-## 项目结构 (•̀ᴗ•́)و
+Copyright (C) 2026 S.A. (@snoware)
 
-```
-src/
-├── conf.rs          # 配置管理
-├── fycore.rs        # 核心翻译功能
-├── fyerrcodes.rs    # 错误码处理
-├── lib.rs           # 库入口和日志系统
-├── main.rs          # 程序主入口
-├── extract_help.rs  # 帮助信息提取
-├── fancy_egg.rs     # 彩蛋功能
-├── ui.rs            # UI模块管理
-└── ui/              # UI组件
-    ├── about.rs     # 关于界面
-    ├── help.rs      # 帮助界面
-    ├── index.rs     # 主界面
-    ├── loader.rs    # UI加载器
-    ├── lovely_items.rs # UI组件
-    └── settings.rs  # 设置界面
-```
-## 许可证 (•̀ᴗ•́)و
+## Author
 
-本项目采用 Mozilla Public License Version 2.0 (MPL-2.0) 许可证。
-
-Copyright (C) 2026 S.A. (@snoware) (¬‿¬)
-
-## 贡献 (•̀ᴗ•́)و
-
-欢迎提交 Issue 和 Pull Request 来改进项目。
-
-## 注意事项 (¬‿¬)
-
-- 请妥善保管您的API密钥，不要将其泄露给他人
-- 遵循百度翻译API的使用频率限制
-- 项目仅供学习和技术交流使用
+S.A. (@snoware)
