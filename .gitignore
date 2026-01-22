@@ -1,5 +1,6 @@
 /target
 /pak
+./btcli*
 #编译脚本生成物
 # 日志文件
 *.log
