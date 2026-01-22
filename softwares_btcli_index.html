@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>btcli - 命令行翻译工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #fff8e1, #ffecb3, #ffcc80); /* 暖色渐变：米色到浅黄到橙色 */
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 可拖动的小球容器 */
+        .draggable-ball {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            z-index: 10000;
+            width: 40px;
+            height: 40px;
+            cursor: grab;
+        }
+
+        .draggable-ball:active {
+            cursor: grabbing;
+        }
+
+        .draggable-ball-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏样式 - 暖色调 */
+        header {
+            background-color: #ff8f00; /* 深橙色 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* 主要内容区域 */
+        main {
+            padding: 2rem 0;
+        }
+
+        /* 英雄区域 - 暖色调 */
+        .hero {
+            background: linear-gradient(135deg, #ff8f00, #ff6f00); /* 橙色渐变 */
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 按钮链接样式 */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .external-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #ff8f00; /* 橙色背景 */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+
+        .external-link-btn:hover {
+            background-color: #e65100; /* 深橙色背景 */
+        }
+
+        .btn-icon {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+        }
+
+        /* 功能特色区域 */
+        .features {
+            padding: 2rem 0;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #ff8f00; /* 橙色标题 */
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background-color: #ffecb3; /* 暖黄色背景 */
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(255, 143, 0, 0.1); /* 橙色阴影 */
+            transition: transform 0.3s;
+            border: 1px solid rgba(255, 143, 0, 0.2); /* 橙色边框 */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(255, 143, 0, 0.2); /* 更明显的橙色阴影 */
+        }
+
+        .feature-card h3 {
+            color: #ff8f00; /* 橙色标题 */
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: #5d4037; /* 棕色文字 */
+        }
+
+        /* Gitee 小部件样式 - 暖色调 */
+        .osc_pro_color {color: #5d4037 !important;}
+        .osc_panel_color {background-color: #ffecb3 !important;}
+        .osc_background_color {background-color: #fff8e1 !important;}
+        .osc_border_color {border-color: #ffca28 !important;}
+        .osc_desc_color {color: #5d4037 !important;}
+        .osc_link_color * {color: #ff8f00 !important;}
+
+        /* 安装说明区域 */
+        .installation {
+            padding: 3rem 0;
+            background-color: #fff3e0; /* 暖橘色背景 */
+        }
+
+        .installation h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #ff8f00; /* 橙色标题 */
+        }
+
+        .install-steps {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .step {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(255, 143, 0, 0.1);
+            border-left: 4px solid #ff8f00; /* 橙色左边框 */
+        }
+
+        .step h3 {
+            margin-bottom: 1rem;
+            color: #ff8f00;
+        }
+
+        pre {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* 使用示例区域 */
+        .usage {
+            padding: 3rem 0;
+        }
+
+        .usage h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #ff8f00; /* 橙色标题 */
+        }
+
+        .usage-examples {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .example {
+            margin-bottom: 2rem;
+            background: #ffecb3; /* 暖黄色背景 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(255, 143, 0, 0.1);
+        }
+
+        .example h3 {
+            margin-bottom: 0.8rem;
+            color: #ff8f00;
+        }
+
+        /* 关于区域 */
+        .about {
+            padding: 5rem 0;
+            background-color: #ffecb3; /* 暖黄色背景 */
+        }
+
+        .about h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #ff8f00; /* 橙色标题 */
+        }
+
+        .about p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #5d4037; /* 棕色文字 */
+        }
+
+        /* 页脚 - 暖色调 */
+        footer {
+            background-color: #ff8f00; /* 橙色页脚 */
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero {
+                padding: 3rem 0;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            nav {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .logo {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 可拖动的带颜文字小球 -->
+    <div class="draggable-ball">
+        <canvas id="draggableBall" class="draggable-ball-canvas"></canvas>
+    </div>
+
+    <header>
+        <nav>
+            <div class="logo">btcli</div>
+            <ul class="nav-links">
+                <li><a href="../..">首页</a></li>
+                <li><a href="#features">特性</a></li>
+                <li><a href="#installation">安装</a></li>
+                <li><a href="#usage">使用</a></li>
+                <li><a href="#about">关于</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container">
+                <h1>btcli</h1>
+                <p>一款在线命令行翻译工具，支持中文及其他语言，配备TUI界面</p>
+            </div>
+        </section>
+
+        <!-- 按钮链接区域 -->
+        <div class="container button-container">
+            <a href="https://gitee.com/Ironbayberry/btcli" target="_blank" class="external-link-btn">
+                <img src="https://gitee.com/favicon.ico" alt="Gitee Icon" class="btn-icon">
+                Gitee
+            </a>
+            <a href="https://crates.io/crates/btcli" target="_blank" class="external-link-btn">
+                <img src="https://crates.io/favicon.ico" alt="Crates.io Icon" class="btn-icon">
+                Crates.io
+            </a>
+        </div>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>功能特性</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>命令行界面</h3>
+                        <p>直接在终端中使用，无需打开浏览器，高效便捷</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>TUI界面</h3>
+                        <p>直观的文本用户界面，操作简单易用</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>多语言支持</h3>
+                        <p>支持中文与其他多种语言的互译</p>
+                    </div>
+                    <!--<div class="feature-card">
+                        <h3>离线使用</h3>
+                        <p>部分功能支持离线使用，保护隐私</p>
+                    </div>-->
+                </div>
+            </div>
+        </section>
+
+        <section id="installation" class="installation">
+            <div class="container">
+                <h2>安装</h2>
+                <div class="install-steps">
+                    <div class="step">
+                        <h3>通过Cargo安装</h3>
+                        <pre><code>cargo install btcli</code></pre>
+                    </div>
+                    <div class="step">
+                        <h3>从源码构建</h3>
+                        <pre><code>git clone https://gitee.com/Ironbayberry/btcli.git
+cd btcli
+cargo build --release</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="usage" class="usage">
+            <div class="container">
+                <h2>使用方法</h2>
+                <div class="usage-examples">
+                    <div class="example">
+                        <h3>基础翻译</h3>
+                        <pre><code>btcli "Hello, world!"</code></pre>
+                    </div>
+                    <div class="example">
+                        <h3>指定语言</h3>
+                        <pre><code>btcli -s en -t zh "Hello, world!"
+							（默认会保存到设置）</code></pre>
+                    </div>
+                    <div class="example">
+                        <h3>启动TUI界面</h3>
+                        <pre><code>btcli</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2>关于项目</h2>
+                <p>btcli是一个开源的命令行翻译工具，专为中文和其他语言的翻译而设计。项目采用Rust语言编写，注重性能和安全性。</p>
+                <p>作者: S.A. (@snoware)</p>
+                <p>许可证: MPL-2.0</p>
+                <p>项目主页: <a href="https://gitee.com/Ironbayberry/btcli" style="color: #ff8f00; text-decoration: underline;" target="_blank">https://gitee.com/Ironbayberry/btcli</a></p>
+            </div>
+        </section>
+        
+        <!-- Gitee 仓库小部件 -->
+        <div class="container">
+            <div id="osc-gitee-widget-tag"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 S.A. (@snoware). 使用 MPL-2.0 许可证发布.</p>
+            <p>项目主页: <a href="https://swe-iss{$rthSuffix}/softwares/btcli" style="color: white; text-decoration: underline;" target="_blank">https://swe-iss{$rthSuffix}/softwares/btcli</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Gitee 仓库小部件
+        (function() {
+            var origin = 'https://gitee.com';
+            var widgetUrl = origin + '/Ironbayberry/btcli/widget_preview';
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = widgetUrl;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(script, s);
+        })();
+    </script>
+    <script>
+        // 绘制可拖动的带颜文字小球
+        const canvas = document.getElementById('draggableBall');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置canvas尺寸
+        canvas.width = 40;
+        canvas.height = 40;
+        
+        // 绘制小球
+        function drawBall() {
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制小球背景
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 15;
+            
+            // 创建渐变效果
+            const gradient = ctx.createRadialGradient(
+                centerX - 5, centerY - 5, 1,
+                centerX, centerY, radius
+            );
+            gradient.addColorStop(0, '#ffeb3b'); // 黄色
+            gradient.addColorStop(1, '#ff9800'); // 橙色
+            
+            // 绘制圆球
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // 添加边框
+            ctx.strokeStyle = '#e65100';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // 绘制颜文字 "(¬‿¬)"
+            ctx.font = 'bold 12px Arial';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('(¬‿¬)', centerX, centerY + 2);
+        }
+        
+        // 调用绘制函数
+        drawBall();
+        
+        // 拖动功能
+        let isDragging = false;
+        let offsetX, offsetY;
+        
+        canvas.parentElement.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        // 触摸设备支持
+        canvas.parentElement.addEventListener('touchstart', touchStart);
+        document.addEventListener('touchmove', touchMove);
+        document.addEventListener('touchend', touchEnd);
+        
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            
+            const rect = canvas.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const x = e.clientX - offsetX;
+            const y = e.clientY - offsetY;
+            
+            // 更新小球位置
+            canvas.parentElement.style.left = `${x}px`;
+            canvas.parentElement.style.top = `${y}px`;
+            canvas.parentElement.style.transform = 'none'; // 取消初始的transform
+        }
+        
+        function stopDrag() {
+            isDragging = false;
+        }
+        
+        // 触摸事件处理
+        function touchStart(e) {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+        
+        function touchMove(e) {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            document.dispatchEvent(mouseEvent);
+        }
+        
+        function touchEnd() {
+            const mouseEvent = new MouseEvent('mouseup', {});
+            document.dispatchEvent(mouseEvent);
+        }
+        
+        // 平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // 减去导航栏高度
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 导航栏高亮当前部分
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('btcli 详情页面已加载');
+        });
+    </script>
+</body>
+</html>
