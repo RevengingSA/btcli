@@ -23,6 +23,11 @@ unsafe_code = "forbid"
 name = "btcli"
 path = "src/main.rs"
 
+# 添加post_build二进制目标
+[[bin]]
+name = "post_build"
+path = "post_build.rs"
+
 [lib]
 name = "btcli_lib"
 path = "src/lib.rs"
@@ -62,3 +67,8 @@ strip = true
 
 # 目标CPU优化 - 注释掉需要不稳定功能的配置
 # rustflags = ["-C", "target-cpu=native"]
+
+# 添加自定义脚本部分
+[workspace]
+members = []
+# 注意：workspace.metadata.scripts 不是标准的Cargo功能，需要使用 cargo-make 或类似工具

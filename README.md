@@ -89,10 +89,6 @@ btcli --help
 - tar (for packaging)
 - zip (for packaging)
 
-## Configuration File Location
-
-The configuration file is stored in `.btcli/config.toml` in the same directory as the executable.
-
 ## Build Script Usage
 
 The unified build script supports various options:
@@ -119,6 +115,20 @@ The unified build script supports various options:
 # Build with all files in a single directory (no debug/release separation)
 ./scripts/build.sh --allin
 ```
+
+## UPX Compression
+
+For release builds, you can compress the binary with UPX to reduce file size:
+
+```bash
+# Build the release binary
+cargo build --release
+
+# Compress the binary with UPX
+cargo run --release --bin post_build
+```
+
+This will reduce the binary size significantly (typically by 60-70%).
 
 ## MSYS2 Environment Notes
 
