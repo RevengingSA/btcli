@@ -423,9 +423,10 @@ fn save_settings(s: &mut Cursive) {
                 source_lang,
                 target_lang
             );
-            lovely_items::show_error(s, "配置保存成功");
-            // 自动关闭设置窗口
-            s.pop_layer();
+            // 先关闭确认对话框，再关闭设置窗口
+            s.pop_layer(); // 关闭确认对话框
+            s.pop_layer(); // 关闭设置窗口
+            lovely_items::show_info(s, "配置保存成功");
         }
         Err(e) => {
             log_to_file!("配置保存失败: {}", e);

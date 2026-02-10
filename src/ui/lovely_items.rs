@@ -59,9 +59,11 @@ where
         .title(title)
         .button("是", move |s| {
             on_yes(s);
+            s.pop_layer();
         })
         .button("否", move |s| {
             on_no(s);
+            s.pop_layer();
         });
 
     s.add_layer(dialog);
