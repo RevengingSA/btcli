@@ -4,7 +4,7 @@
 
 [package]
 name = "btcli"
-version = "0.5.7-stable"
+version = "0.5.8"
 edition = "2024"
 license = "MPL-2.0"
 authors = ["S.A. (@snoware) <2026>"]
