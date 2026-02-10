@@ -100,4 +100,8 @@ pub mod extract_help;
 pub mod fancy_egg;
 pub mod fycore;
 pub mod fyerrcodes;
+
+// 仅在启用UI特性时包含UI模块
+#[cfg(feature = "ui")]
 pub mod ui;
+mod fydocsrv;

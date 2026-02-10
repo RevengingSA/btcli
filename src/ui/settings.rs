@@ -4,14 +4,21 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#[cfg(feature = "ui")]
 use crate::ui::lovely_items;
+#[cfg(feature = "ui")]
 use cursive::Cursive;
+#[cfg(feature = "ui")]
 use cursive::traits::{Nameable, Resizable};
+#[cfg(feature = "ui")]
 use cursive::views::{Button, Checkbox, Dialog, EditView, LinearLayout, TextView};
 
+#[cfg(feature = "ui")]
 use log::debug;
+#[cfg(feature = "ui")]
 use std::fs;
 
+#[cfg(feature = "ui")]
 pub fn build_settings_view() -> Dialog {
     let settings_layout = LinearLayout::vertical()
         .child(
@@ -26,7 +33,7 @@ pub fn build_settings_view() -> Dialog {
         )
         .child(
             LinearLayout::horizontal()
-                .child(TextView::new("目标语言: ").fixed_width(10))
+                .child(TextView::new("源语言: ").fixed_width(10))
                 .child(EditView::new().with_name("source_lang").fixed_width(20)),
         )
         .child(
@@ -59,6 +66,7 @@ pub fn build_settings_view() -> Dialog {
 }
 
 // 添加只读设置视图
+#[cfg(feature = "ui")]
 pub fn build_view_only_settings_view() -> Dialog {
     let settings_layout = LinearLayout::vertical()
         .child(
@@ -127,6 +135,7 @@ pub fn build_view_only_settings_view() -> Dialog {
 }
 
 // 清理日志文件的函数
+#[cfg(feature = "ui")]
 fn clear_log_file(s: &mut Cursive) {
     match fs::OpenOptions::new()
         .write(true)
@@ -145,6 +154,7 @@ fn clear_log_file(s: &mut Cursive) {
 }
 
 // 专门用于设置初始值的函数
+#[cfg(feature = "ui")]
 pub fn populate_settings_view(s: &mut Cursive) {
     debug!("Attempting to populate settings view");
     log_to_file!("开始填充设置界面");
@@ -238,6 +248,7 @@ pub fn populate_settings_view(s: &mut Cursive) {
 }
 
 // 专门用于填充只读设置视图的函数
+#[cfg(feature = "ui")]
 pub fn populate_view_only_settings_view(s: &mut Cursive) {
     debug!("Attempting to populate view-only settings view");
     log_to_file!("开始填充只读设置界面");
@@ -354,6 +365,7 @@ pub fn populate_view_only_settings_view(s: &mut Cursive) {
     }
 }
 
+#[cfg(feature = "ui")]
 fn confirm_save_settings(s: &mut Cursive) {
     log_to_file!("显示保存确认对话框");
     lovely_items::show_confirmation(
@@ -365,6 +377,7 @@ fn confirm_save_settings(s: &mut Cursive) {
     );
 }
 
+#[cfg(feature = "ui")]
 fn save_settings(s: &mut Cursive) {
     log_to_file!("开始保存设置");
     // 获取输入并保存

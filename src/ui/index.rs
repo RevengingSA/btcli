@@ -4,23 +4,30 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#[cfg(feature = "ui")]
 use crate::ui::*;
+#[cfg(feature = "ui")]
 use cursive::traits::{Nameable, Resizable};
+#[cfg(feature = "ui")]
 use cursive::{
     Cursive,
     views::{Button, Dialog, LinearLayout, TextArea, TextView},
 };
 
 // 导入剪贴板功能
+#[cfg(feature = "ui")]
 use clipboard::{ClipboardContext, ClipboardProvider};
 
+#[cfg(feature = "ui")]
 use std::cell::Cell;
 
 // 使用 Cell 来安全地存储可变状态
+#[cfg(feature = "ui")]
 thread_local! {
     static ASK_ABOUT_SETTINGS: Cell<bool> = Cell::new(true);
 }
 
+#[cfg(feature = "ui")]
 pub fn build_main_view() -> LinearLayout {
     let mut layout = LinearLayout::vertical();
 
@@ -70,6 +77,7 @@ pub fn build_main_view() -> LinearLayout {
     layout
 }
 
+#[cfg(feature = "ui")]
 fn translate(s: &mut Cursive) {
     // 先获取输入内容，避免生命周期问题
     let input_content_opt = s.call_on_name("input_textarea", |view: &mut TextArea| {
@@ -119,6 +127,7 @@ fn translate(s: &mut Cursive) {
     }
 }
 
+#[cfg(feature = "ui")]
 pub fn translate_with_ask(s: &mut Cursive) {
     if ASK_ABOUT_SETTINGS.with(|ask| ask.get()) {
         let dialog = Dialog::new()
@@ -149,6 +158,7 @@ pub fn translate_with_ask(s: &mut Cursive) {
     }
 }
 
+#[cfg(feature = "ui")]
 pub fn clear_texts(s: &mut Cursive) {
     s.call_on_name("input_textarea", |view: &mut TextArea| view.set_content(""));
     s.call_on_name("output_textview", |view: &mut TextView| {
@@ -157,6 +167,7 @@ pub fn clear_texts(s: &mut Cursive) {
 }
 
 // 复制翻译结果到剪贴板
+#[cfg(feature = "ui")]
 pub fn copy_translation_result(s: &mut Cursive) {
     // 获取当前输出视图的内容
     let output_content_opt = s.call_on_name("output_textview", |view: &mut TextView| {

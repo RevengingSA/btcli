@@ -25,10 +25,18 @@ fn main() {
     if args.len() > 1 {
         run_cli_mode(&args[1..]);
     } else {
-        // 否则运行UI模式
-        log_to_file!("启动UI模式");
-        crate::ui::loader::ui_main();
-        log_to_file!("UI模式结束");
+        // 否则运行UI模式（如果启用了UI特性）
+        #[cfg(feature = "ui")]
+        {
+            log_to_file!("启动UI模式");
+            crate::ui::loader::ui_main();
+            log_to_file!("UI模式结束");
+        }
+        #[cfg(not(feature = "ui"))]
+        {
+            eprintln!("UI功能未启用。请使用命令行参数运行此程序。");
+            cli::show_help();
+        }
     }
     log_to_file!("应用程序结束");
 }

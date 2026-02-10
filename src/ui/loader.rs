@@ -4,8 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+#[cfg(feature = "ui")]
 use cursive::{Cursive, CursiveExt};
 
+#[cfg(feature = "ui")]
 pub fn ui_main() {
     let mut siv = Cursive::default();
 
@@ -51,4 +53,9 @@ pub fn ui_main() {
     });
 
     siv.run();
+}
+
+#[cfg(not(feature = "ui"))]
+pub fn ui_main() {
+    eprintln!("UI功能未启用。请使用命令行参数运行此程序。");
 }
