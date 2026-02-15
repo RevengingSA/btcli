@@ -33,19 +33,20 @@ jobs:
           for TARGET in "${PLATFORMS[@]}"; do
             echo "Building custom image for $TARGET..."
           
-            # --- 修复点：使用 echo 逐行写入，避免 EOF 缩进陷阱 ---
+            # --- 修复点 1：将基础镜像标签从 :0.2.5 改为 :edge ---
             > Dockerfile.cross.tmp
-            echo "FROM ghcr.io/cross-rs/$TARGET:0.2.5" >> Dockerfile.cross.tmp
+            echo "FROM ghcr.io/cross-rs/$TARGET:edge" >> Dockerfile.cross.tmp
             echo "RUN apt-get update && \\" >> Dockerfile.cross.tmp
             echo "    apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \\" >> Dockerfile.cross.tmp
             echo "    rm -rf /var/lib/apt/lists/*" >> Dockerfile.cross.tmp
             # ---------------------------------------------------------
           
-            docker build --pull -t "ghcr.io/cross-rs/$TARGET:0.2.5" -f "Dockerfile.cross.tmp" .
+            # --- 修复点 2：将构建出的镜像标签也改为 :edge，保持一致 ---
+            docker build --pull -t "ghcr.io/cross-rs/$TARGET:edge" -f "Dockerfile.cross.tmp" .
             rm "Dockerfile.cross.tmp"
           done
 
-      # 4. 安装 Cross 工具 (注意：这里必须和上面的步骤对齐，缩进一致)
+      # 4. 安装 Cross 工具
       - name: Setup Cross
         run: |
           cargo install cross
