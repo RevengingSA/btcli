@@ -1,6 +1,7 @@
 name: Auto Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'  # 仅当打标签时触发发布
