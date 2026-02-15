@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y upx zstd tar zip
-          sudo apt-get install -y musl-tools
+          sudo apt-get install -y musl-tools python3
 
       # 3. 安装 Rust 和 Cross（使用更兼容的方法）
       - name: Setup Rust
