@@ -33,13 +33,9 @@ jobs:
           for TARGET in "${PLATFORMS[@]}"; do
             echo "Building custom image for $TARGET..."
           
-            # --- 修复点 1：将基础镜像标签从 :0.2.5 改为 :edge ---
-            > Dockerfile.cross.tmp
-            echo "FROM ghcr.io/cross-rs/$TARGET:edge" >> Dockerfile.cross.tmp
-            echo "RUN apt-get update && \\" >> Dockerfile.cross.tmp
-            echo "    apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \\" >> Dockerfile.cross.tmp
-            echo "    rm -rf /var/lib/apt/lists/*" >> Dockerfile.cross.tmp
-            # ---------------------------------------------------------
+            # 创建Dockerfile并安装必要依赖
+            echo "FROM ghcr.io/cross-rs/$TARGET:edge" > Dockerfile
+            echo "RUN apt-get update && apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && rm -rf /var/lib/apt/lists/*" >> Dockerfile
           
             # --- 修复点 2：将构建出的镜像标签也改为 :edge，保持一致 ---
             docker build --pull -t "ghcr.io/cross-rs/$TARGET:edge" -f "Dockerfile.cross.tmp" .
