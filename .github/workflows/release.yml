@@ -28,6 +28,10 @@ jobs:
             "aarch64-unknown-linux-gnu"
             "riscv64gc-unknown-linux-gnu"
             "loongarch64-unknown-linux-gnu"
+            "x86_64-unknown-linux-musl"
+            "aarch64-unknown-linux-musl"
+            "riscv64gc-unknown-linux-musl"
+            "loongarch64-unknown-linux-musl"
           )
 
           for TARGET in "${PLATFORMS[@]}"; do
