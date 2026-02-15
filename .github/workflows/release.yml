@@ -1,0 +1,137 @@
+name: Auto Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 仅当打标签时触发发布
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 拉取代码（使用更兼容的版本）
+      - name: Checkout
+        uses: actions/checkout@v3  # 降级到v3以提高兼容性
+
+      # 2. 安装基础工具链
+      - name: Setup Base Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y upx zstd tar zip
+          sudo apt-get install -y musl-tools
+
+      # 3. 安装 Rust 和 Cross（使用更兼容的方法）
+      - name: Setup Rust
+        run: |
+          # 使用rustup安装Rust工具链
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          # 安装cross工具
+          cargo install cross
+
+      # 4. 定义多平台构建函数（简化版）
+      - name: Define Build Function
+        id: build_func
+        run: |
+          # 创建构建函数
+          cat << 'EOF' > build_platform.sh
+          #!/bin/bash
+          set -e
+          
+          # 参数: 目标平台
+          TARGET=$1
+          
+          # 构建目录
+          BUILD_DIR="target/$TARGET"
+          mkdir -p $BUILD_DIR
+          
+          # 构建命令（简化：直接使用cross）
+          cross build --target $TARGET --release
+          
+          # 压缩二进制
+          if [ -f $BUILD_DIR/release/btcli ]; then
+            upx -9 $BUILD_DIR/release/btcli
+          elif [ -f $BUILD_DIR/release/btcli.exe ]; then
+            upx -9 $BUILD_DIR/release/btcli.exe
+          fi
+          
+          # 创建包（简化分类逻辑）
+          if [[ $TARGET == *linux* ]]; then
+            tar -cvf $BUILD_DIR/btcli.tar $BUILD_DIR/release/btcli
+            zstd -9 $BUILD_DIR/btcli.tar -o $BUILD_DIR/btcli.tar.zst
+          elif [[ $TARGET == *windows* ]]; then
+            zip $BUILD_DIR/btcli.zip $BUILD_DIR/release/btcli.exe
+          elif [[ $TARGET == *darwin* ]]; then
+            tar -cvf $BUILD_DIR/btcli.tar $BUILD_DIR/release/btcli
+            zstd -9 $BUILD_DIR/btcli.tar -o $BUILD_DIR/btcli.tar.zst
+          elif [[ $TARGET == *bsd* ]]; then
+            tar -cvf $BUILD_DIR/btcli.tar $BUILD_DIR/release/btcli
+            zstd -9 $BUILD_DIR/btcli.tar -o $BUILD_DIR/btcli.tar.zst
+          elif [[ $TARGET == *android* ]]; then
+            zip $BUILD_DIR/btcli.zip $BUILD_DIR/release/btcli
+          fi
+          EOF
+          
+          # 使脚本可执行
+          chmod +x build_platform.sh
+          echo "BUILD_FUNC=build_platform.sh" >> $GITHUB_OUTPUT
+
+      # 5. 构建所有平台
+      - name: Build All Platforms
+        run: |
+          # 定义要构建的平台
+          PLATFORMS=(
+            "x86_64-unknown-linux-gnu"
+            "aarch64-unknown-linux-gnu"
+            "riscv64gc-unknown-linux-gnu"
+            "loongarch64-unknown-linux-gnu"
+            "x86_64-pc-windows-msvc"
+            "aarch64-pc-windows-msvc"
+            "x86_64-apple-darwin"
+            "aarch64-apple-darwin"
+            "aarch64-linux-android"
+            "armv7-linux-androideabi"
+            "x86_64-linux-android"
+            "x86_64-unknown-linux-musl"
+            "aarch64-unknown-linux-musl"
+            "riscv64gc-unknown-linux-musl"
+            "loongarch64-unknown-linux-musl"
+            # 新增Unix系统支持
+            "x86_64-unknown-freebsd"
+            "x86_64-unknown-netbsd"
+            "x86_64-unknown-openbsd"
+            "x86_64-unknown-dragonfly"
+          )
+          
+          # 逐个构建平台
+          for TARGET in "${PLATFORMS[@]}"; do
+            ./build_platform.sh $TARGET
+          done
+
+      # 6. 收集构建产物
+      - name: Collect Artifacts
+        id: collect
+        run: |
+          # 查找所有构建产物
+          ARTIFACTS=$(find target -name "btcli*.tar.zst" -o -name "btcli*.zip")
+          echo "ARTIFACTS=$ARTIFACTS" >> $GITHUB_OUTPUT
+
+      # 7. 发布到 GitHub Releases
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated Release
+            Built from ${{ github.sha }}
+            Includes support for:
+            - Linux (glibc and musl)
+            - Windows
+            - macOS
+            - Android
+            - FreeBSD
+            - NetBSD
+            - OpenBSD
+            - DragonFly BSD
+          files: ${{ steps.collect.outputs.ARTIFACTS }}

@@ -1,0 +1,19 @@
+name: Sync from Gitee
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # 每12小时同步一次
+  workflow_dispatch:          # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror from Gitee
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git clone --mirror https://gitee.com/ironbayberry/btcli.git
+          cd btcli.git
+          git remote set-url --push origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RevengingSA/btcli.git
+          git fetch -p origin
+          git push --mirror
