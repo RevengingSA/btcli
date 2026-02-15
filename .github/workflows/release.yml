@@ -20,20 +20,42 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y upx zstd tar zip
 
-      # 3. 构建自定义 Cross 镜像（关键修复点）
-      - name: Build Custom Cross Image
+      # 3. 构建所有自定义 Cross 镜像
+      - name: Build All Custom Cross Images
         run: |
-          # 创建 Dockerfile
-          cat << 'EOF' > Dockerfile.cross
-          FROM ghcr.io/cross-rs/x86_64-unknown-linux-gnu:0.2.5
-          # 安装 python3 和 XCB 开发库（关键修复）
-          RUN apt-get update && \
-              apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev musl-tools && \
-              rm -rf /var/lib/apt/lists/*
-          EOF
+          PLATFORMS=(
+            "x86_64-unknown-linux-gnu"
+            "aarch64-unknown-linux-gnu"
+            "riscv64gc-unknown-linux-gnu"
+            "loongarch64-unknown-linux-gnu"
+            # 注意：下面这些平台不需要构建自定义镜像，因为它们不涉及 XCB 链接
+            # "x86_64-pc-windows-msvc"
+            # "aarch64-pc-windows-msvc"
+            # "x86_64-apple-darwin"
+            # "aarch64-apple-darwin"
+            # "x86_64-unknown-linux-musl"
+            # "aarch64-unknown-linux-musl"
+            # ... 其他非 gnu linux 平台
+          )
+
+          # 为每一个 Linux GNU 平台构建镜像
+          for TARGET in "${PLATFORMS[@]}"; do
+            echo "Building custom image for $TARGET..."
           
-          # 构建镜像（使用与 cross 相同的标签）
-          docker build -t ghcr.io/cross-rs/x86_64-unknown-linux-gnu:0.2.5 -f Dockerfile.cross .
+            # 创建临时 Dockerfile
+            cat << EOF > "Dockerfile.cross.tmp"
+            FROM ghcr.io/cross-rs/\$TARGET:0.2.5
+            RUN apt-get update && \
+                apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \
+                rm -rf /var/lib/apt/lists/*
+            EOF
+
+            # 构建并打标签
+            docker build -t "ghcr.io/cross-rs/$TARGET:0.2.5" -f "Dockerfile.cross.tmp" .
+
+            # 清理临时文件
+            rm "Dockerfile.cross.tmp"
+          done
 
       # 4. 安装 Cross 工具
       - name: Setup Cross
