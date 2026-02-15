@@ -14,32 +14,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. 安装基础工具链 (保留原有的 upx 等工具)
+      # 2. 安装基础工具链（保留 upx 等工具）
       - name: Setup Base Tools
         run: |
           sudo apt-get update
           sudo apt-get install -y upx zstd tar zip
-          # 注意：在自定义镜像中安装 python3，这里不需要装系统级的
 
-      # 3. 构建自定义 Cross 镜像并安装工具
-      # 这是修复的核心步骤：先构建镜像，再安装 cross
-      - name: Setup Cross with Custom Image
+      # 3. 构建自定义 Cross 镜像（关键修复点）
+      - name: Build Custom Cross Image
         run: |
-          # 3.1 安装 cross
-          cargo install cross
-
-          # 3.2 创建 Dockerfile 来修复依赖
-          # 我们基于官方镜像安装 python3
+          # 创建 Dockerfile
           cat << 'EOF' > Dockerfile.cross
           FROM ghcr.io/cross-rs/x86_64-unknown-linux-gnu:0.2.5
-          RUN apt-get update && apt-get install -y python3 && rm -rf /var/lib/apt/lists/*
+          # 安装 python3 和 XCB 开发库（关键修复）
+          RUN apt-get update && \
+              apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev musl-tools && \
+              rm -rf /var/lib/apt/lists/*
           EOF
-
-          # 3.3 构建镜像
-          # cross 默认会查找同名的镜像
+          
+          # 构建镜像（使用与 cross 相同的标签）
           docker build -t ghcr.io/cross-rs/x86_64-unknown-linux-gnu:0.2.5 -f Dockerfile.cross .
 
-      # 4. 定义构建函数 (保持不变)
+      # 4. 安装 Cross 工具
+      - name: Setup Cross
+        run: |
+          cargo install cross
+
+      # 5. 定义构建函数
       - name: Define Build Function
         id: build_func
         run: |
@@ -48,10 +49,10 @@ jobs:
           set -e
           TARGET=$1
           
-          # 关键：使用 cross 而不是 cargo
+          # 使用 cross 构建
           cross build --target $TARGET --release
           
-          # 压缩逻辑...
+          # 压缩和打包
           BUILD_DIR="target/$TARGET"
           mkdir -p $BUILD_DIR
           
@@ -67,30 +68,58 @@ jobs:
           chmod +x build_platform.sh
           echo "BUILD_FUNC=build_platform.sh" >> $GITHUB_OUTPUT
 
-      # 5. 构建所有平台
+      # 6. 构建所有平台
       - name: Build All Platforms
         run: |
           PLATFORMS=(
             "x86_64-unknown-linux-gnu"
-            # ... 其他平台保持不变 ...
             "aarch64-unknown-linux-gnu"
+            "riscv64gc-unknown-linux-gnu"
+            "loongarch64-unknown-linux-gnu"
+            "x86_64-pc-windows-msvc"
+            "aarch64-pc-windows-msvc"
+            "x86_64-apple-darwin"
+            "aarch64-apple-darwin"
+            "aarch64-linux-android"
+            "armv7-linux-androideabi"
+            "x86_64-linux-android"
             "x86_64-unknown-linux-musl"
+            "aarch64-unknown-linux-musl"
+            "riscv64gc-unknown-linux-musl"
+            "loongarch64-unknown-linux-musl"
+            "x86_64-unknown-freebsd"
+            "x86_64-unknown-netbsd"
+            "x86_64-unknown-openbsd"
+            "x86_64-unknown-dragonfly"
           )
           
           for TARGET in "${PLATFORMS[@]}"; do
             ./build_platform.sh $TARGET
           done
 
-      # 6. 收集产物
+      # 7. 收集构建产物
       - name: Collect Artifacts
         id: collect
         run: |
-          ARTIFACTS=$(find target -name "*.tar.zst" -o -name "*.zip")
+          ARTIFACTS=$(find target -name "btcli*.tar.zst" -o -name "btcli*.zip")
           echo "ARTIFACTS=$ARTIFACTS" >> $GITHUB_OUTPUT
 
-      # 7. 发布
+      # 8. 发布到 GitHub Releases
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Automated Release
+            Built from ${{ github.sha }}
+            Includes support for:
+            - Linux (glibc and musl)
+            - Windows
+            - macOS
+            - Android
+            - FreeBSD
+            - NetBSD
+            - OpenBSD
+            - DragonFly BSD
           files: ${{ steps.collect.outputs.ARTIFACTS }}
