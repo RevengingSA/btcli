@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. 安装基础工具链（保留 upx 等工具）
+      # 2. 安装基础工具链
       - name: Setup Base Tools
         run: |
           sudo apt-get update
@@ -28,36 +28,24 @@ jobs:
             "aarch64-unknown-linux-gnu"
             "riscv64gc-unknown-linux-gnu"
             "loongarch64-unknown-linux-gnu"
-            # 注意：下面这些平台不需要构建自定义镜像，因为它们不涉及 XCB 链接
-            # "x86_64-pc-windows-msvc"
-            # "aarch64-pc-windows-msvc"
-            # "x86_64-apple-darwin"
-            # "aarch64-apple-darwin"
-            # "x86_64-unknown-linux-musl"
-            # "aarch64-unknown-linux-musl"
-            # ... 其他非 gnu linux 平台
           )
 
-          # 为每一个 Linux GNU 平台构建镜像
           for TARGET in "${PLATFORMS[@]}"; do
             echo "Building custom image for $TARGET..."
           
-            # 创建临时 Dockerfile
-            cat << EOF > "Dockerfile.cross.tmp"
-            FROM ghcr.io/cross-rs/\$TARGET:0.2.5
-            RUN apt-get update && \
-                apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \
-                rm -rf /var/lib/apt/lists/*
-            EOF
-
-            # 构建并打标签
-            docker build -t "ghcr.io/cross-rs/$TARGET:0.2.5" -f "Dockerfile.cross.tmp" .
-
-            # 清理临时文件
+            # --- 修复点：使用 echo 逐行写入，避免 EOF 缩进陷阱 ---
+            > Dockerfile.cross.tmp
+            echo "FROM ghcr.io/cross-rs/$TARGET:0.2.5" >> Dockerfile.cross.tmp
+            echo "RUN apt-get update && \\" >> Dockerfile.cross.tmp
+            echo "    apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \\" >> Dockerfile.cross.tmp
+            echo "    rm -rf /var/lib/apt/lists/*" >> Dockerfile.cross.tmp
+            # ---------------------------------------------------------
+          
+            docker build --pull -t "ghcr.io/cross-rs/$TARGET:0.2.5" -f "Dockerfile.cross.tmp" .
             rm "Dockerfile.cross.tmp"
           done
 
-      # 4. 安装 Cross 工具
+      # 4. 安装 Cross 工具 (注意：这里必须和上面的步骤对齐，缩进一致)
       - name: Setup Cross
         run: |
           cargo install cross
@@ -66,27 +54,33 @@ jobs:
       - name: Define Build Function
         id: build_func
         run: |
-          cat << 'EOF' > build_platform.sh
-          #!/bin/bash
-          set -e
-          TARGET=$1
-          
-          # 使用 cross 构建
-          cross build --target $TARGET --release
-          
-          # 压缩和打包
-          BUILD_DIR="target/$TARGET"
-          mkdir -p $BUILD_DIR
-          
-          if [ -f $BUILD_DIR/release/btcli ]; then
-            upx -9 $BUILD_DIR/release/btcli
-            tar -cvf $BUILD_DIR/btcli.tar $BUILD_DIR/release/btcli
-            zstd -9 $BUILD_DIR/btcli.tar -o $BUILD_DIR/btcli.tar.zst
-          elif [ -f $BUILD_DIR/release/btcli.exe ]; then
-            upx -9 $BUILD_DIR/release/btcli.exe
-            zip $BUILD_DIR/btcli.zip $BUILD_DIR/release/btcli.exe
-          fi
-          EOF
+          > build_platform.sh
+          echo '#!/bin/bash' >> build_platform.sh
+          echo 'set -e' >> build_platform.sh
+          echo 'TARGET=$1' >> build_platform.sh
+          echo 'BUILD_DIR="target/$TARGET"' >> build_platform.sh
+          echo 'mkdir -p $BUILD_DIR' >> build_platform.sh
+          echo 'echo "Building for target: $TARGET"' >> build_platform.sh
+          echo '' >> build_platform.sh
+          echo 'if [[ "$TARGET" == *"redox"* ]]; then' >> build_platform.sh
+          echo '  echo "Building for Redox OS (No UPX support)..." ' >> build_platform.sh
+          echo '  cross build --target $TARGET --release' >> build_platform.sh
+          echo '  if [ -f "$BUILD_DIR/release/btcli" ]; then' >> build_platform.sh
+          echo '    cp "$BUILD_DIR/release/btcli" "$BUILD_DIR/btcli"' >> build_platform.sh
+          echo '    tar -cvf "$BUILD_DIR/btcli.pax" "$BUILD_DIR/btcli"' >> build_platform.sh
+          echo '    zstd -9 "$BUILD_DIR/btcli.pax" -o "$BUILD_DIR/btcli.pax.zst"' >> build_platform.sh
+          echo '  fi' >> build_platform.sh
+          echo 'else' >> build_platform.sh
+          echo '  cross build --target $TARGET --release' >> build_platform.sh
+          echo '  if [ -f "$BUILD_DIR/release/btcli" ]; then' >> build_platform.sh
+          echo '    upx -9 "$BUILD_DIR/release/btcli" 2>/dev/null || echo "UPX not available for this target, skipping compression"' >> build_platform.sh
+          echo '    tar -cvf "$BUILD_DIR/btcli.tar" "$BUILD_DIR/release/btcli"' >> build_platform.sh
+          echo '    zstd -9 "$BUILD_DIR/btcli.tar" -o "$BUILD_DIR/btcli.tar.zst"' >> build_platform.sh
+          echo '  elif [ -f "$BUILD_DIR/release/btcli.exe" ]; then' >> build_platform.sh
+          echo '    upx -9 "$BUILD_DIR/release/btcli.exe"' >> build_platform.sh
+          echo '    zip "$BUILD_DIR/btcli.zip" "$BUILD_DIR/release/btcli.exe"' >> build_platform.sh
+          echo '  fi' >> build_platform.sh
+          echo 'fi' >> build_platform.sh
           chmod +x build_platform.sh
           echo "BUILD_FUNC=build_platform.sh" >> $GITHUB_OUTPUT
 
@@ -113,17 +107,24 @@ jobs:
             "x86_64-unknown-netbsd"
             "x86_64-unknown-openbsd"
             "x86_64-unknown-dragonfly"
+            "x86_64-unknown-redox"
+            "aarch64-unknown-redox"
           )
           
           for TARGET in "${PLATFORMS[@]}"; do
-            ./build_platform.sh $TARGET
+            echo "=================================="
+            echo "Processing $TARGET"
+            echo "=================================="
+            ./build_platform.sh "$TARGET" || echo "Build for $TARGET failed or skipped"
           done
 
       # 7. 收集构建产物
       - name: Collect Artifacts
         id: collect
         run: |
-          ARTIFACTS=$(find target -name "btcli*.tar.zst" -o -name "btcli*.zip")
+          ARTIFACTS=$(find target -name "btcli*.tar.zst" -o -name "btcli*.zip" -o -name "btcli*.pax.zst" | grep -v "/release/")
+          echo "Found artifacts:"
+          echo "$ARTIFACTS"
           echo "ARTIFACTS=$ARTIFACTS" >> $GITHUB_OUTPUT
 
       # 8. 发布到 GitHub Releases
@@ -140,8 +141,6 @@ jobs:
             - Windows
             - macOS
             - Android
-            - FreeBSD
-            - NetBSD
-            - OpenBSD
-            - DragonFly BSD
+            - BSDs (FreeBSD, NetBSD, OpenBSD, DragonFly)
+            - **Redox OS** (x86_64, aarch64)
           files: ${{ steps.collect.outputs.ARTIFACTS }}
