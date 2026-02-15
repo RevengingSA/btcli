@@ -33,16 +33,16 @@ jobs:
           for TARGET in "${PLATFORMS[@]}"; do
             echo "Building custom image for $TARGET..."
           
-            # --- 修复点 1：将基础镜像标签从 :0.2.5 改为 :edge ---
-            > Dockerfile.cross.tmp
-            echo "FROM ghcr.io/cross-rs/$TARGET:edge" >> Dockerfile.cross.tmp
-            echo "RUN apt-get update && \\" >> Dockerfile.cross.tmp
-            echo "    apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \\" >> Dockerfile.cross.tmp
-            echo "    rm -rf /var/lib/apt/lists/*" >> Dockerfile.cross.tmp
-            # ---------------------------------------------------------
-          
-            # --- 修复点 2：将构建出的镜像标签也改为 :edge，保持一致 ---
-            docker build --pull -t "ghcr.io/cross-rs/$TARGET:edge" -f "Dockerfile.cross.tmp" .
+            # 创建临时 Dockerfile
+            cat > Dockerfile.cross.tmp << 'EOF'
+            FROM ghcr.io/cross-rs/$TARGET:edge
+            RUN apt-get update && \
+                apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \
+                rm -rf /var/lib/apt/lists/*
+            EOF
+
+            # 构建并打标签 (这里我们构建它，但稍后会通过配置引用)
+            docker build --pull -t "my-custom-cross/$TARGET:latest" -f "Dockerfile.cross.tmp" .
             rm "Dockerfile.cross.tmp"
           done
 
@@ -51,7 +51,26 @@ jobs:
         run: |
           cargo install cross
 
-      # 5. 定义构建函数
+      # 5. 生成 Cross 配置文件 (关键修复点)
+      # 这一步告诉 cross，当构建特定目标时，不要用默认镜像，要用我们自己构建的镜像
+      - name: Generate Cross Config
+        run: |
+          cat > Cross.toml << 'EOF'
+          # 针对需要 X11/Python 依赖的特定目标进行重写
+          [target.x86_64-unknown-linux-gnu]
+          image = "my-custom-cross/x86_64-unknown-linux-gnu:latest"
+          
+          [target.aarch64-unknown-linux-gnu]
+          image = "my-custom-cross/aarch64-unknown-linux-gnu:latest"
+          
+          [target.riscv64gc-unknown-linux-gnu]
+          image = "my-custom-cross/riscv64gc-unknown-linux-gnu:latest"
+          
+          [target.loongarch64-unknown-linux-gnu]
+          image = "my-custom-cross/loongarch64-unknown-linux-gnu:latest"
+          EOF
+
+      # 6. 定义构建函数
       - name: Define Build Function
         id: build_func
         run: |
@@ -85,7 +104,7 @@ jobs:
           chmod +x build_platform.sh
           echo "BUILD_FUNC=build_platform.sh" >> $GITHUB_OUTPUT
 
-      # 6. 构建所有平台
+      # 7. 构建所有平台
       - name: Build All Platforms
         run: |
           PLATFORMS=(
@@ -119,7 +138,7 @@ jobs:
             ./build_platform.sh "$TARGET" || echo "Build for $TARGET failed or skipped"
           done
 
-      # 7. 收集构建产物
+      # 8. 收集构建产物
       - name: Collect Artifacts
         id: collect
         run: |
@@ -128,7 +147,7 @@ jobs:
           echo "$ARTIFACTS"
           echo "ARTIFACTS=$ARTIFACTS" >> $GITHUB_OUTPUT
 
-      # 8. 发布到 GitHub Releases
+      # 9. 发布到 GitHub Releases
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
