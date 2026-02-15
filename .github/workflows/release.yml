@@ -34,21 +34,25 @@ jobs:
             "loongarch64-unknown-linux-musl"
           )
 
+          # 创建基础 Dockerfile 模板
+          echo "FROM ghcr.io/cross-rs/%%TARGET%%:edge" > base_dockerfile.txt
+          echo "RUN apt-get update && \" >> base_dockerfile.txt
+          echo "    apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \" >> base_dockerfile.txt
+          echo "    rm -rf /var/lib/apt/lists/*" >> base_dockerfile.txt
+
           for TARGET in "${PLATFORMS[@]}"; do
             echo "Building custom image for $TARGET..."
           
-            # 创建临时 Dockerfile
-            cat > Dockerfile.cross.tmp << 'EOF'
-            FROM ghcr.io/cross-rs/$TARGET:edge
-            RUN apt-get update && \
-                apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && \
-                rm -rf /var/lib/apt/lists/*
-            EOF
+            # 替换模板中的目标平台
+            sed "s/%%TARGET%%/${TARGET}/g" base_dockerfile.txt > Dockerfile.cross.tmp
 
             # 构建并打标签 (这里我们构建它，但稍后会通过配置引用)
             docker build --pull -t "my-custom-cross/$TARGET:latest" -f "Dockerfile.cross.tmp" .
             rm "Dockerfile.cross.tmp"
           done
+          
+          # 清理模板文件
+          rm base_dockerfile.txt
 
       # 4. 安装 Cross 工具
       - name: Setup Cross
@@ -59,20 +63,19 @@ jobs:
       # 这一步告诉 cross，当构建特定目标时，不要用默认镜像，要用我们自己构建的镜像
       - name: Generate Cross Config
         run: |
-          cat > Cross.toml << 'EOF'
-          # 针对需要 X11/Python 依赖的特定目标进行重写
-          [target.x86_64-unknown-linux-gnu]
-          image = "my-custom-cross/x86_64-unknown-linux-gnu:latest"
-          
-          [target.aarch64-unknown-linux-gnu]
-          image = "my-custom-cross/aarch64-unknown-linux-gnu:latest"
-          
-          [target.riscv64gc-unknown-linux-gnu]
-          image = "my-custom-cross/riscv64gc-unknown-linux-gnu:latest"
-          
-          [target.loongarch64-unknown-linux-gnu]
-          image = "my-custom-cross/loongarch64-unknown-linux-gnu:latest"
-          EOF
+          # 创建 Cross.toml 配置文件
+          echo "# 针对需要 X11/Python 依赖的特定目标进行重写" > Cross.toml
+          echo "[target.x86_64-unknown-linux-gnu]" >> Cross.toml
+          echo "image = \"my-custom-cross/x86_64-unknown-linux-gnu:latest\"" >> Cross.toml
+          echo "" >> Cross.toml
+          echo "[target.aarch64-unknown-linux-gnu]" >> Cross.toml
+          echo "image = \"my-custom-cross/aarch64-unknown-linux-gnu:latest\"" >> Cross.toml
+          echo "" >> Cross.toml
+          echo "[target.riscv64gc-unknown-linux-gnu]" >> Cross.toml
+          echo "image = \"my-custom-cross/riscv64gc-unknown-linux-gnu:latest\"" >> Cross.toml
+          echo "" >> Cross.toml
+          echo "[target.loongarch64-unknown-linux-gnu]" >> Cross.toml
+          echo "image = \"my-custom-cross/loongarch64-unknown-linux-gnu:latest\"" >> Cross.toml
 
       # 6. 定义构建函数
       - name: Define Build Function
