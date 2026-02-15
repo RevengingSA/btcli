@@ -2,18 +2,31 @@ name: Sync from Gitee
 on:
   schedule:
     - cron: '0 */12 * * *'  # 每12小时同步一次
-  workflow_dispatch:          # 允许手动触发
+  workflow_dispatch:         # 允许手动触发
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - name: Mirror from Gitee
+        # 设置环境变量，将 Secrets 传递给 Shell
+        env:
+          TARGET_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }} # 引用刚才创建的 Secret
         run: |
+          # 配置 Git 用户信息
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 1. 镜像克隆 Gitee 仓库
           git clone --mirror https://gitee.com/ironbayberry/btcli.git
           cd btcli.git
-          git remote set-url --push origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RevengingSA/btcli.git
+          
+          # 2. 设置推送到 GitHub 的地址
+          # 使用环境变量 $TARGET_TOKEN 作为密码
+          git remote set-url --push origin https://x-access-token:${TARGET_TOKEN}@github.com/RevengingSA/btcli.git
+          
+          # 3. 拉取 Gitee 最新数据
           git fetch -p origin
+          
+          # 4. 强制推送到 GitHub
           git push --mirror
