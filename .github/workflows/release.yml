@@ -37,9 +37,9 @@ jobs:
             echo "FROM ghcr.io/cross-rs/$TARGET:edge" > Dockerfile
             echo "RUN apt-get update && apt-get install -y python3 libxcb1-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev && rm -rf /var/lib/apt/lists/*" >> Dockerfile
           
-            # --- 修复点 2：将构建出的镜像标签也改为 :edge，保持一致 ---
-            docker build --pull -t "ghcr.io/cross-rs/$TARGET:edge" -f "Dockerfile.cross.tmp" .
-            rm "Dockerfile.cross.tmp"
+            # 构建自定义镜像
+            docker build --pull -t "my-custom-cross/$TARGET:latest" -f Dockerfile .
+            rm Dockerfile
           done
 
       # 4. 安装 Cross 工具
