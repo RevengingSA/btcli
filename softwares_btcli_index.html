@@ -299,6 +299,11 @@
         }
 
         /* Gitee 小部件样式 - 暖色调 */
+        .osc_pro_color {color: #5d4037 !important;}
+        .osc_panel_color {background-color: #ffecb3 !important;}
+        .osc_background_color {background-color: #fff8e1 !important;}
+        .osc_border_color {border-color: #ffca28 !important;}
+        .osc_desc_color {color: #5d4037 !important;}
         .osc_link_color * {color: #ff8f00 !important;}
 
         /* 安装说明区域 */
@@ -624,6 +629,10 @@ cargo build --release</code></pre>
                     <label for="platformSelect">选择您的操作系统:</label>
                     <select id="platformSelect">
                         <option value="">请选择平台</option>
+                        <optgroup label="Windows">
+                            <option value="x86_64-pc-windows-msvc">Windows x86_64</option>
+                            <option value="aarch64-pc-windows-msvc">Windows ARM64</option>
+                        </optgroup>
                         <optgroup label="Linux (glibc)">
                             <option value="x86_64-unknown-linux-gnu">Linux x86_64</option>
                             <option value="aarch64-unknown-linux-gnu">Linux ARM64</option>
@@ -635,10 +644,6 @@ cargo build --release</code></pre>
                             <option value="aarch64-unknown-linux-musl">Linux ARM64 (musl)</option>
                             <option value="riscv64gc-unknown-linux-musl">Linux RISC-V (musl)</option>
                             <option value="loongarch64-unknown-linux-musl">Linux LoongArch64 (musl)</option>
-                        </optgroup>
-                        <optgroup label="Windows">
-                            <option value="x86_64-pc-windows-msvc">Windows x86_64</option>
-                            <option value="aarch64-pc-windows-msvc">Windows ARM64</option>
                         </optgroup>
                         <optgroup label="macOS">
                             <option value="x86_64-apple-darwin">macOS Intel</option>
@@ -827,6 +832,7 @@ cargo build --release</code></pre>
             
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
                 
                 if (pageYOffset >= (sectionTop - 100)) {
                     current = section.getAttribute('id');
@@ -872,7 +878,7 @@ cargo build --release</code></pre>
             }
 
             // 直接使用latest链接格式
-            const latestUrl = `https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}.${compressFormat}`;
+            const latestUrl = `https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}+${compressFormat}`;
             
             const link = document.createElement('a');
             link.href = latestUrl;
@@ -907,7 +913,7 @@ cargo build --release</code></pre>
             }
 
             // 使用 gh-proxy 镜像下载latest版本
-            const mirrorUrl = `https://gh-proxy.com/https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}.${compressFormat}`;
+            const mirrorUrl = `https://gh-proxy.com/https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}+${compressFormat}`;
             
             const link = document.createElement('a');
             link.href = mirrorUrl;
@@ -923,7 +929,7 @@ cargo build --release</code></pre>
         // 点击模态框外部关闭
         window.onclick = function(event) {
             const modal = document.getElementById('downloadModal');
-            if (event.target === modal) {
+            if (event.target == modal) {
                 modal.style.display = 'none';
             }
         }
