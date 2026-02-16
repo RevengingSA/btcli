@@ -528,3 +528,79 @@ jobs:
           body: ${{ steps.release_body.outputs.body_content }}
           files: |
             artifacts/**/*
+
+      - name: Create Latest Release Assets
+        run: |
+          # 为latest版本创建固定文件名的资产
+          mkdir -p latest_assets
+          
+          # 复制并重命名所有构建产物
+          find artifacts -name "*.tar.zst" -exec sh -c '
+            for file; do
+              basename=$(basename "$file")
+              # 提取平台信息
+              platform=$(echo "$basename" | sed -E "s/btcli-(.*)\.tar\.zst/\1/")
+              # 创建latest版本文件名
+              new_name="btcli-latest-$platform+tar.zst"
+              cp "$file" "latest_assets/$new_name"
+              echo "Created: $new_name"
+            done
+          ' _ {} \;
+          
+          find artifacts -name "*.zip" -exec sh -c '
+            for file; do
+              basename=$(basename "$file")
+              # 提取平台信息
+              platform=$(echo "$basename" | sed -E "s/btcli-(.*)\.zip/\1/")
+              # 创建latest版本文件名
+              new_name="btcli-latest-$platform+zip"
+              cp "$file" "latest_assets/$new_name"
+              echo "Created: $new_name"
+            done
+          ' _ {} \;
+          
+          find artifacts -name "*.pax.zst" -exec sh -c '
+            for file; do
+              basename=$(basename "$file")
+              # 提取平台信息
+              platform=$(echo "$basename" | sed -E "s/btcli-(.*)\.pax\.zst/\1/")
+              # 创建latest版本文件名
+              new_name="btcli-latest-$platform+pax.zst"
+              cp "$file" "latest_assets/$new_name"
+              echo "Created: $new_name"
+            done
+          ' _ {} \;
+          
+          # 列出创建的文件
+          echo "Latest assets created:"
+          ls -la latest_assets/
+
+      - name: Upload Latest Assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-assets
+          path: latest_assets/
+
+      - name: Create or Update Latest Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest Release
+          body: |
+            This is the latest stable release of btcli.
+            Always points to the most recent version.
+            
+            ## Download Links
+            - Linux (glibc): https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+tar.zst
+            - Linux (musl): https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+tar.zst
+            - Windows: https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+zip
+            - macOS: https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+tar.zst
+            - Android: https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+tar.zst
+            - BSD: https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+tar.zst
+            - Redox OS: https://github.com/${{ github.repository }}/releases/download/latest/btcli-latest-TARGET+pax.zst
+          files: |
+            latest_assets/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
