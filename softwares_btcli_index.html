@@ -872,7 +872,7 @@ cargo build --release</code></pre>
             }
 
             // 直接使用latest链接格式
-            const latestUrl = `https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}+${compressFormat}`;
+            const latestUrl = `https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}.${compressFormat}`;
             
             const link = document.createElement('a');
             link.href = latestUrl;
@@ -907,7 +907,7 @@ cargo build --release</code></pre>
             }
 
             // 使用 gh-proxy 镜像下载latest版本
-            const mirrorUrl = `https://gh-proxy.com/https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}+${compressFormat}`;
+            const mirrorUrl = `https://gh-proxy.com/https://github.com/RevengingSA/btcli/releases/download/latest/${fileName}.${compressFormat}`;
             
             const link = document.createElement('a');
             link.href = mirrorUrl;
