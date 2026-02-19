@@ -1,121 +1,143 @@
-Here is the translation of your project declaration, keeping the original structure and content intact.
+Webpage Analysis
+"""
+URL: https://github.com/bailing/uniclient
 
-btcli Project Restructuring Declaration: The Next-Generation Specialized Translation Tool Based on Rust
+[GitHub 404 Page Content]
+404 - This is not the web page you are looking for.
+Platform navigation, subscription, support, and standard footer content.
+"""
+
+📝 Project Refactoring Summary
+
+Given the existence of competitors like Stranslate, the original btcli project has decided to deprecate the old code and undergo a complete rewrite, officially renaming the project to **bailing**. The core strategy for this refactoring is as follows:
+
+1. 🖼️ Terminal Experience Innovation
+    *   **Linux Unicode Support**: Deeply optimize the Linux console by adding comprehensive Unicode support to resolve garbled text and rendering issues.
+    *   **Keyboard-Only Word Selection**: Implement keyboard-only word selection translation within the terminal, completely eliminating the need for a mouse.
+    *   **Chat-Style Interface**: Break the cold interaction mode of traditional command lines by introducing an innovative chat-style dialogue interface.
+
+2. ⚙️ Architecture and Scenario Separation
+    *   **CLI/TUI Separation**: Separate Pure CLI (script processing) from Interactive TUI scenarios to maximize the complementary advantages of both.
+    *   **Automation Interaction Layer**: Deeply optimize scripts to build an efficient automation interaction layer, ensuring stability for machine calls.
+
+3. 📚 Functional Layered Expansion
+    *   **Document Layer**: Support automatic translation of formats such as man, txt (regex), docx, pdf, pptx, and odf.
+    *   **Toolchain**: Independent OCR and TTS componentization, supporting local models and internationalization.
+
+---
+
+bailing Project Refactoring Statement: The Next-Generation Specialized Translation Tool Based on Rust
+
 🌟 Project Vision
 
-We announce that the btcli project will enter a comprehensive restructuring phase, adopting Rust as the core implementation language. We are committed to building a high-performance, highly reliable, cross-platform, and scalable terminal translation tool. This restructuring is not only an upgrade of the technology stack but also a comprehensive innovation in architectural philosophy and user experience.
+We announce that the bailing project will enter a comprehensive refactoring phase, adopting Rust as the core implementation language. We are committed to building a high-performance, highly reliable, cross-platform, and scalable terminal translation tool. This refactoring is not only a technology stack upgrade but also a comprehensive innovation in architecture philosophy and user experience.
 
-We aim to build a command-line tool for the future, integrating the advantages of modern systems programming languages with advanced software engineering practices, providing developers, translators, and terminal users with a secure, intelligent, efficient, and expressive interactive translation solution.
+We aim to build a command-line tool for the future, integrating the advantages of modern system programming languages and advanced software engineering practices. We strive to provide developers, translators, and terminal users with a secure, intelligent, efficient, and expressive interactive translation solution.
 
 🔧 Core Objectives
 
-Ultimate Performance and System-Level Security
-Memory Safety & Performance: Utilize Rust's memory safety and non-garbage-collected mechanism to achieve high-performance execution with zero runtime overhead.
-Reliability: Leverage Ownership, Lifetimes, and Type Systems to eliminate null pointers, data races, and memory leaks at the compilation stage, ensuring system-level reliability.
+**1. Ultimate Performance and System-Level Security**
+*   Leverage Rust's memory safety and garbage collection-free mechanism to achieve high-performance execution with zero runtime overhead.
+*   Utilize Ownership, Lifetimes, and the Type System to eliminate null pointers, data races, and memory leaks at compile time, ensuring system-level reliability.
 
-Modern Terminal Experience
-Dual-Mode Support: Provide support for both Pure CLI Mode and Interactive TUI (Text-based User Interface), catering to both automated scripts and manual interaction.
-Chat-Style Interface: Introduce a chat-style dialogue interface that simulates natural language interaction, lowering the entry barrier.
-Keyboard-Only Operation: Support pure keyboard word selection and translation within the terminal, eliminating the need for a mouse and enhancing efficiency.
+**2. Modern Terminal Experience (including Unicode and Interaction Optimization)**
+*   **Dual-Mode Support**: Provide both Pure CLI mode and Interactive TUI mode to accommodate automated scripts and human interaction.
+*   **Chat-Style Innovation**: Introduce a chat-style dialogue interface to simulate natural language interaction, lowering the entry barrier.
+*   **Keyboard-Only Operation**: Support keyboard-only word selection translation within the terminal, eliminating the need for a mouse and improving efficiency.
+*   **Unicode Rendering**: Specifically add Unicode support for the Linux console to optimize character rendering and display effects.
 
-Multi-Modal Document Translation Support
-Native Format Support: Natively support automatic parsing and translation of common document formats such as man, txt (regex matching), docx, pdf, pptx, and odf.
-Custom Logic Extension: Allow users to write custom parsing logic and extend format processing capabilities through an embedded Lua Scripting Engine (rlua).
+**3. Script Optimization and Automation Interaction Layer**
+*   Deeply optimize for script scenarios to build an efficient automation interaction layer.
+*   Ensure stability, usability, and data format standardization in non-interactive environments (such as Shell scripts).
 
-Intelligence and Localization Capabilities
-Local Models: Integrate lightweight local translation models to support offline translation and personalized terminology libraries.
-Built-in OCR Module: Implement text recognition and translation for images and scanned documents based on Tesseract-Rust or similar libraries.
-Global Adaptation: Support Internationalization (i18n) and multi-language environment adaptation to serve global users.
+**4. Multimodal Document Translation Support**
+*   Natively support automatic parsing and translation of common document formats such as man, txt (regex), docx, pdf, pptx, and odf.
+*   Allow users to write custom parsing logic through the built-in Lua script engine (rlua) to extend format processing capabilities.
 
-Automation and Persistent Services
-Background Persistence: Support persistent background processes that can run in the system tray or service mode.
-Intelligent Scheduling: Automatically execute translation tasks during idle/low-load periods, supporting task queues, priority scheduling, and task segmentation.
-Background Automation: Provide background automation functions such as auto-updates, cache preheating, and terminology library synchronization.
+**5. Toolchain and Independent Components**
+*   Exist as a toolchain, providing independent OCR (Optical Character Recognition) and TTS (Text-to-Speech) components that support combined use.
 
-Reliability Engineering: Design by Contract
-Contract-Based Programming: Introduce Design by Contract (DbC) in critical modules (such as I/O, model calls, memory management).
-Verification: Define and verify Preconditions, Postconditions, and Invariants using libhoare or Rust's native contract patterns to improve code readability, maintainability, and robustness.
+**6. Intelligence and Localization Capabilities**
+*   **Local Models**: Integrate lightweight local translation models (e.g., Hunyuan 1.8B) to support offline translation and personalized terminology libraries.
+*   **OCR Module**: Built-in OCR module (based on Tesseract-Rust / WeChat OCR) to achieve text recognition and translation for images and scanned documents.
+*   **Internationalization**: Support i18n and multi-language environment adaptation.
 
-Concurrency and Resource Optimization
-Hybrid Concurrency Model: Adopt a multi-threading + multi-coroutine (async/await) hybrid concurrency model, building an asynchronous runtime based on Tokio or async-std.
-Parallel Processing: Implement parallel processing of tasks (such as batch translation, OCR, network requests) to maximize resource utilization and avoid blocking the main thread.
+**7. Automation and Resident Services**
+*   Support resident background processes that can run in system tray or service mode.
+*   Automatically execute translation tasks during idle/low-load periods, supporting task queues, priority scheduling, and task splitting.
 
-Modularization and Ecosystem Expansion
-Crate-Based Architecture: The project adopts a crate-based architecture, splitting core functions into independent modules:
-btcli-core: Translation engine and task scheduling.
-btcli-ui: CLI/TUI interface.
-btcli-ocr: Optical Character Recognition.
-btcli-lua: Script extension interface.
-btcli-contract: Design by Contract support.
-Ecosystem Support: All modules will be released as open-source crates on crates.io, supporting third-party integration and secondary development.
+**8. Reliability Engineering: Design by Contract**
+*   Introduce Design by Contract in key modules, using libhoare or custom macros to define preconditions and postconditions.
+*   Enhance code readability, maintainability, and robustness.
+
+**9. Concurrency and Resource Optimization**
+*   Adopt a hybrid concurrency model of Multi-threading + Multi-coroutines (async/await), building an asynchronous runtime based on Tokio.
+*   Implement parallel task processing (batch translation, OCR, network requests) to maximize resource utilization.
+
+**10. Modularization and Ecosystem Expansion**
+*   Adopt a crate division architecture:
+    *   `bailing-core`: Translation engine and scheduling
+    *   `bailing-ui`: Interface layer
+    *   `bailing-ocr`: OCR component
+    *   `bailing-lua`: Script extension
+    *   `bailing-contract`: Contract support
+*   All modules will be released as open-source crates on crates.io.
 
 🛠 Technical Architecture Overview
-Layer   Technical Components   Description
-Language Core   Rust (2021+)   Memory safety, zero-cost abstraction, high performance.
 
-Concurrency Model   async/await + Tokio   Asynchronous task scheduling and multi-threading support.
-
-UI Layer   tui-rs / crossterm   Building interactive terminal interfaces.
-
-CLI Parsing   clap   Command-line parameter parsing and help generation.
-
-Script Support   rlua   Embedded Lua interpreter, supporting dynamic extension.
-
-Contract Programming   libhoare / Custom Macros   Implementing runtime contract checks on critical paths.
-
-Document Processing   pdf-extract, docx-rs, odf-parser, etc.   Multi-format document parsing, regex support.
-
-OCR Engine   tesseract-rs   Image text recognition.
-
-Model Integration   onnxruntime / tract   Local lightweight model inference.
+| Layer | Technical Component | Description |
+| :--- | :--- | :--- |
+| **Language Core** | Rust (2021+) | Memory safety, zero-cost abstraction |
+| **Concurrency Model** | async/await + Tokio | Asynchronous task scheduling |
+| **UI Layer** | tui-rs / crossterm | Building TUI and chat-style interfaces |
+| **CLI Parsing** | clap | Parameter parsing |
+| **Script Support** | rlua | Dynamic extension |
+| **Document Processing** | pdf-extract, docx-rs, etc. | Multi-format parsing |
+| **OCR Engine** | tesseract-rs / WeChat OCR | Image recognition |
+| **Model Integration** | onnxruntime / tract | Local inference (Hunyuan 1.8B) |
 
 📈 Development Roadmap
 
-Phase 1: Basic Restructuring
-Complete the migration of the core translation engine and CLI interface to Rust.
-Implement basic text translation and the TUI interface.
-Phase 2: Reliability and Concurrency
-Introduce Design by Contract and the asynchronous task system.
-Implement multi-threading/coroutine support and build the persistent service framework.
-Phase 3: Expansion and Ecosystem
-Release the Lua script interface and plugin system.
-Split and open-source core crates to promote community contribution.
-Phase 4: Intelligence and Automation
-Integrate local models and OCR to achieve low-load automatic task execution.
+*   **Phase 1: Basic Refactoring**
+    *   Migrate core to Rust.
+    *   Implement basic text translation and TUI (including chat-style interface).
+    *   Add Linux Unicode support.
+*   **Phase 2: Reliability and Concurrency**
+    *   Introduce Design by Contract.
+    *   Build the resident service framework and concurrency model.
+*   **Phase 3: Expansion and Ecosystem**
+    *   Release Lua script interface.
+    *   Split crates and open source.
+*   **Phase 4: Intelligence and Automation**
+    *   Integrate local models and OCR.
+    *   Perfect document translation and automation interaction layer.
 
 ✅ Project Advantages Summary
-Advantage   Description
-Secure and Reliable   Rust memory safety + Design by Contract, eliminating common vulnerabilities at the root.
 
-High Performance   Native compilation, zero-cost abstraction, suitable for high-concurrency task processing.
-
-Cross-Platform   Supports Linux / Windows / macOS, unified build process.
-
-Extensible   Lua scripts + plugin system + modular crate design.
-
-User Experience   Chat-style interaction + keyboard operation + persistent service, enhancing efficiency.
-
-Ecosystem Friendly   Open-source, comprehensive documentation, supports community co-construction.
+*   **Secure and Reliable**: Rust + Design by Contract.
+*   **High Performance**: Native compilation, suitable for high concurrency.
+*   **Cross-Platform**: Unified build for Linux/Win/Mac.
+*   **Extensible**: Lua scripts + Plugin system.
+*   **Ultimate Interaction**: Chat-style + Keyboard-only operation + Unicode rendering.
+*   **Ecosystem Friendly**: Open-source crates, supporting community co-construction.
 
 🤝 Contribution and Collaboration
 
-This project will adopt a dual licensing system for the code. For non-profit use, the MIT License will be applied. For profitable purposes, negotiations must be conducted with all participating developers, but the revenue generated can only be used for public welfare purposes,
+**Licensing**: This project will adopt a dual-licensing model for a single codebase. Non-profit use is under MPL. For-profit use requires negotiation with all participating developers, but the income can only be used for public welfare.
 
-GitHub Repository:
-Documentation & API: Coming Soon
+We welcome:
+*   Developers to participate in core module development.
+*   Translation communities to contribute language models and terminology libraries.
+*   Users to provide feedback on usage scenarios.
+*   Community members to build plugin ecosystems.
 
-We welcome you to participate:
-Developers: Participate in the development of core modules.
-Translation Community: Contribute language models and terminology libraries.
-Users: Provide feedback on usage scenarios and improvement suggestions.
-Community Members: Co-build the plugin ecosystem.
+GitHub Repository: https://github.com/bailing/uniclient
+Documentation and API: Coming Soon
 
 🚀 Conclusion
 
-btcli is no longer just a translation tool, but an intelligent language interaction platform for terminal users.
+bailing is no longer just a translation tool, but an intelligent language interaction platform for terminal users. We believe that through Rust's security and performance, the rigor of Design by Contract, the flexibility of multimodal processing, and modern interaction design, bailing will become an indispensable part of the terminal ecosystem.
 
-We believe that through Rust's security and performance, the rigor of Design by Contract, the flexibility of multi-modal processing, and modern interaction design, btcli will become an indispensable part of the terminal ecosystem.
-
-The future is here, code is contract, and security is the bottom line.
+The future is here. Code is contract, security is the bottom line.
 
 — S.A.
