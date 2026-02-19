@@ -1,185 +1,117 @@
-# btcli
+btcli 项目重构声明：基于 Rust 的下一代特种翻译工具
 
-An online command-line translation tool for Chinese and other languages with TUI interface.
+🌟 项目愿景
 
-~(^-^)~
+我们宣布，btcli 项目将进入全面重构阶段，采用 Rust 语言作为核心实现语言，致力于打造一个高性能、高可靠性、跨平台、可扩展的终端翻译工具。本次重构不仅是技术栈的升级，更是架构理念与用户体验的全面革新。
 
-## Description
+我们旨在构建一个面向未来的命令行工具，融合现代系统编程语言的优势与先进软件工程实践，为开发者、翻译工作者及终端用户提供一个安全、智能、高效且富有表现力的交互式翻译解决方案。
 
-btcli is a command-line translation tool that provides a TUI (Text User Interface) for easy access to Baidu Translate API. It supports multiple languages and provides a convenient way to translate text directly from the command line.
+🔧 核心目标
 
-## Features
+极致性能与系统级安全
+利用 Rust 的内存安全与无垃圾回收机制，实现零运行时开销的高性能执行。
+借助 所有权、生命周期与类型系统，从编译期杜绝空指针、数据竞争与内存泄漏，确保系统级可靠性。
 
-- Command-line interface with TUI
-- Support for multiple languages
-- Configuration management
-- Error handling and logging
-- Cross-platform compatibility
+现代化终端体验
+提供 纯 CLI 模式 与 交互式 TUI（Text-based User Interface） 双模式支持，兼顾自动化脚本与人工交互。
+引入 聊天式对话界面，模拟自然语言交互，降低使用门槛。
+支持 终端内纯键盘划词翻译，无需鼠标，提升效率。
 
-## Installation
+多模态文档翻译支持
+原生支持 man、txt（正则匹配）、docx、pdf、pptx、odf 等常见文档格式的自动解析与翻译。
+通过 内置 Lua 脚本引擎（rlua），允许用户编写自定义解析逻辑，扩展格式处理能力。
 
-To build and install btcli, you'll need Rust and Cargo installed on your system.
+智能化与本地化能力
+集成 轻量级本地翻译模型，支持离线翻译与个性化术语库。
+内置 OCR 模块（基于 Tesseract-Rust 或类似库），实现图像与扫描文档的文字识别与翻译。
+支持 国际化（i18n）与多语言环境适配，服务全球用户。
 
-Clone the repository and build:
+自动化与常驻服务
+支持 常驻后台进程，可在系统托盘或服务模式下运行。
+实现 空闲/低负载时自动执行翻译任务，支持任务队列、优先级调度与任务切割。
+提供 自动更新、缓存预热、词库同步 等后台自动化功能。
 
-```bash
-git clone https://github.com/RevengingSA/btcli.git
-cd btcli
-cargo build --release
-```
+可靠性工程：契约式编程
+在关键模块（如 I/O、模型调用、内存管理）中引入 契约式编程（Design by Contract）。
+借助 libhoare 或 Rust 原生契约模式，定义并验证 前置条件、后置条件与不变量，提升代码可读性、可维护性与健壮性。
 
-The binary will be available in `target/release/btcli`.
+并发与资源优化
+采用 多线程 + 多协程（async/await） 混合并发模型，基于 Tokio 或 async-std 构建异步运行时。
+实现任务并行化处理（如批量翻译、OCR、网络请求），最大化资源利用率，避免阻塞主线程。
 
-## Usage
+模块化与生态扩展
+项目采用 crate 分治架构，核心功能拆分为独立模块：
+btcli-core：翻译引擎与任务调度
+btcli-ui：CLI/TUI 界面
+btcli-ocr：光学字符识别
+btcli-lua：脚本扩展接口
+btcli-contract：契约式编程支持
+所有模块将以 开源 crate 形式发布至 crates.io，支持第三方集成与二次开发。
 
-First, configure your Baidu Translate API credentials:
+🛠 技术架构概览
+层级   技术组件   说明
+语言核心   Rust (2021+)   内存安全、零成本抽象、高性能
 
-```bash
-# Edit config.toml with your API credentials
-# Or run the program once to generate an example config
-./btcli
-```
+并发模型   async/await + Tokio   异步任务调度与多线程支持
 
-The application supports both TUI (Text User Interface) mode and pure command-line mode:
+UI 层   tui-rs / crossterm   构建交互式终端界面
 
-```bash
-# Interactive TUI mode
-./btcli
+CLI 解析   clap   命令行参数解析与帮助生成
 
-# Command line mode - basic translation
-./btcli "text to translate"
+脚本支持   rlua   内嵌 Lua 解释器，支持动态扩展
 
-# Command line mode - with options
-./btcli -t zh "Hello world"              # Translate to Chinese
-./btcli -s en -t zh "Hello world"      # Specify source and target languages
-./btcli --help                         # Show help information
-./btcli --version                      # Show version information
-```
+契约编程   libhoare / 自定义宏   在关键路径实施运行时契约检查
 
-### Command Line Options
+文档处理   pdf-extract, docx-rs, odf-parser 等   多格式文档解析，正则表达式支持
 
-The command-line interface supports the following options:
+OCR 引擎   tesseract-rs   图像文字识别
 
-- `-s, --source LANG`: Specify the source language (e.g., en, zh)
-- `-t, --target LANG`: Specify the target language (e.g., en, zh)
-- `-h, --help`: Display help information
-- `-v, --version`: Display version information
+模型集成   onnxruntime / tract   本地轻量翻译模型推理
 
-Examples:
+📈 开发路线图
 
-```bash
-# Basic translation (uses configured default languages)
-btcli "Hello world"
+Phase 1：基础重构
+完成核心翻译引擎与 CLI 接口迁移至 Rust
+实现基础文本翻译与 TUI 界面
+Phase 2：可靠性与并发
+引入契约式编程与异步任务系统
+实现多线程/协程支持，构建常驻服务框架
+Phase 3：扩展与生态
+发布 Lua 脚本接口与插件系统
+拆分并开源核心 crate，推动社区贡献
+Phase 4：智能化与自动化
+集成本地模型与 OCR，实现低负载自动任务执行
 
-# Translate to specific language
-btcli -t zh "Hello world"
+✅ 项目优势总结
+优势   说明
+安全可靠   Rust 内存安全 + 契约式编程，从根源杜绝常见漏洞
 
-# Specify both source and target languages
-btcli -s en -t fr "Hello world"
+高性能   原生编译、零成本抽象，适合高并发任务处理
 
-# Get help
-btcli --help
-```
+跨平台   支持 Linux / Windows / macOS，统一构建流程
 
-## Dependencies
+可扩展   Lua 脚本 + 插件系统 + 模块化 crate 设计
 
-- Rust 1.70+
-- Cargo
-- UPX (optional, for binary compression)
-- tar (for packaging)
-- zip (for packaging)
+用户体验   聊天式交互 + 键盘操作 + 常驻服务，提升效率
 
-## Build Script Usage
+生态友好   开源、文档齐全、支持社区共建
 
-The unified build script supports various options:
+🤝 贡献与协作
 
-```bash
-# Build with default formats (zst,zip) for all common platforms
-./scripts/build.sh
+本项目将采用 MIT 开源协议，代码托管于 GitHub。我们欢迎：
 
-# Clean build artifacts
-./scripts/build.sh clean
+开发者参与核心模块开发
+翻译社区贡献语言模型与术语库
+用户反馈使用场景与改进建议
+社区成员共建插件生态
 
-# Build with specific compression formats
-./scripts/build.sh build --format zst
-./scripts/build.sh build --format zip,gz
+GitHub 仓库：https://github.com/bailing/uniclient
+文档与 API：即将上线
 
-# Check dependencies
-./scripts/build.sh check
+🚀 结语
 
-# Build for specific target platforms
-./scripts/build.sh --target x86_64-unknown-linux-gnu
-./scripts/build.sh --target x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu
-./scripts/build.sh --target x86_64-unknown-linux-gnu --format zst
+btcli 不再只是一个翻译工具，而是一个面向终端用户的智能语言交互平台。我们相信，通过 Rust 的安全性与性能、契约式编程的严谨性、多模态处理的灵活性 以及 现代化交互设计，btcli 将成为终端生态中不可或缺的一环。
 
-# Build with all files in a single directory (no debug/release separation)
-./scripts/build.sh --allin
-```
+未来已来，代码即契约，安全即底线。
 
-## UPX Compression
-
-For release builds, you can compress the binary with UPX to reduce file size:
-
-```bash
-# Build the release binary
-cargo build --release
-
-# Compress the binary with UPX
-cargo run --release --bin post_build
-```
-
-This will reduce the binary size significantly (typically by 60-70%).
-
-## MSYS2 Environment Notes
-
-When using the build script in MSYS2 environment:
-
-- The script detects MSYS2 automatically
-- Dependencies are checked but not automatically installed
-- Install missing packages manually using `pacman -S package-name`
-- Typical packages needed: `mingw-w64-x86_64-rust`, `mingw-w64-x86_64-upx`, `zip`, `tar`
-
-## Multi-Platform Support
-
-The build script supports cross-compilation for multiple platforms:
-
-- Linux x86_64: `x86_64-unknown-linux-gnu`
-- Linux ARM64: `aarch64-unknown-linux-gnu`
-- Linux RISC-V64: `riscv64gc-unknown-linux-gnu`
-- Windows ARM64: `aarch64-pc-windows-msvc`
-- Android ARM64: `aarch64-linux-android`
-- Android ARMv7: `armv7-linux-androideabi`
-- Android x86_64: `x86_64-linux-android`
-- Android x86: `i686-linux-android`
-
-Install targets with: `rustup target add <target>`
-
-## Termux Support
-
-The build script also works in Termux environment on Android:
-
-- The script automatically detects Termux environment
-- Install dependencies with: `pkg install rust cargo tar zip upx rustup zstd`
-- Cross-compile for various platforms as described above
-- By default builds for Android targets: `aarch64-linux-android`, `armv7-linux-androideabi`, `x86_64-linux-android`, `i686-linux-android`
-
-## Output Files
-
-The build script generates files with the naming convention:
-`btcli-{version}-{os}-{arch}.(tar.zst|zip|tar.gz|tar.xz)`
-
-Each archive contains:
-- debug/ directory with debug binaries and all debug artifacts (.d, .rlib, deps/) (normal mode)
-- release/ directory with release binaries and all release artifacts (normal mode)
-- Or all files in a single directory (when using --allin flag)
-
-## License
-
-This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. 
-If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-Copyright (C) 2026 S.A. (@snoware)
-
-## Author
-
-S.A. (@snoware)
+—— S.A. 敬上
