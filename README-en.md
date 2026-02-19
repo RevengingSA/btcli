@@ -99,7 +99,7 @@ Ecosystem Friendly   Open-source, comprehensive documentation, supports communit
 
 🤝 Contribution and Collaboration
 
-This project will adopt the MIT Open Source License.
+This project will adopt a dual licensing system for the code. For non-profit use, the MIT License will be applied. For profitable purposes, negotiations must be conducted with all participating developers, but the revenue generated can only be used for public welfare purposes,
 
 GitHub Repository:
 Documentation & API: Coming Soon
